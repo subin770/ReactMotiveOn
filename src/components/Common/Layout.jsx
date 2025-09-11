@@ -1,21 +1,33 @@
 import React, { useState } from "react";
 import Header from "./Header";
 import Sidebar from "./Sidebar";
+import { Outlet, useNavigate } from "react-router-dom";
 
-const Layout = ({ children }) => {
+const Layout = () => {
   const [isSidebarOpen, setSidebarOpen] = useState(false);
+  const navigate = useNavigate();
+
+  const userMock = {
+    name: "이민진",
+    empNo: "24330015",
+    position: "사원",
+    dept: "경영지원팀",
+    checkIn: "2025-09-04 01:49",
+    profileImg: "/profile.png",
+  };
 
   return (
-    <div>
-      <Header
-        onMenuClick={() => setSidebarOpen(!isSidebarOpen)} 
-        onNoticeClick={() => alert("알림 보기")}
-        onLogout={() => alert("로그아웃")}
+    <div style={{ display: "flex" }}>
+      <Header onMenuClick={() => setSidebarOpen(true)} />
+      <Sidebar
+        isOpen={isSidebarOpen}
+        onClose={() => setSidebarOpen(false)}
+        user={userMock}
+        onNavigate={navigate}
       />
-
-      <Sidebar isOpen={isSidebarOpen} onClose={() => setSidebarOpen(false)} />
-
-      <main style={{ padding: "72px 16px 16px 16px" }}>{children}</main>
+      <main style={{ flex: 1, marginTop: "56px", padding: "16px" }}>
+        <Outlet />
+      </main>
     </div>
   );
 };
