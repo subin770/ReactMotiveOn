@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import Header from "./Header";
 import Sidebar from "./Sidebar";
+import Header from "./Header";
 import { Outlet, useNavigate } from "react-router-dom";
 
 const Layout = () => {
@@ -17,17 +17,34 @@ const Layout = () => {
   };
 
   return (
-    <div style={{ display: "flex" }}>
-      <Header onMenuClick={() => setSidebarOpen(true)} />
+    <div style={{ width: "100%", height: "788px" }}>
+      {/* 헤더 */}
+      <Header
+        isSidebarOpen={isSidebarOpen}
+        onMenuClick={() => setSidebarOpen(!isSidebarOpen)}
+      />
+
+      {/* 사이드바: fixed로 겹쳐서 뜸 */}
       <Sidebar
         isOpen={isSidebarOpen}
         onClose={() => setSidebarOpen(false)}
         user={userMock}
         onNavigate={navigate}
       />
-      <main style={{ flex: 1, marginTop: "56px", padding: "16px" }}>
-        <Outlet />
-      </main>
+
+      {/* 본문 */}
+    <main
+  style={{
+    marginTop: "56px",                // 헤더 높이만큼 띄움
+    width: "100%",                    // 전체 폭 유지
+    height: "calc(100vh - 56px)",     // 헤더 제외 영역
+    overflow: "hidden",               // ✅ 스크롤 제거
+    boxSizing: "border-box",
+  }}
+>
+  <Outlet />
+</main>
+
     </div>
   );
 };

@@ -1,26 +1,46 @@
 // import { useState } from 'react'
-// import { Button } from "./components/Common/Button";
-// import Layout from './components/Common/Layout';
-// import Sidebar from './components/Common/Sidebar';
-// import ModalWrapper from './components/Common/ModalWrapper';
-// import InputField from './components/Common/InputField.jsx';
-// import OrgTree from "./components/Common/OrgTree";
-// import StatusBadge from './components/Common/StatusBadge.jsx';
-// import StatusCard from './components/Common/StatusCard.jsx';
+// import CalendarRegist from './components/calendar/CalendarRegist';
+// import CalendarPage from './components/calendar/CalendarPage';
+// import { createGlobalStyle } from 'styled-components';
+// // import { Button } from "./components/Common/Button";
+// // import Layout from './components/Common/Layout';
+// // import Sidebar from './components/Common/Sidebar';
+// // import ModalWrapper from './components/Common/ModalWrapper';
+// // import InputField from './components/Common/InputField.jsx';
+// // import OrgTree from "./components/Common/OrgTree";
+// // import StatusBadge from './components/Common/StatusBadge.jsx';
+// // import StatusCard from './components/Common/StatusCard.jsx';
 
 // function App() {
 //   const [count, setCount] = useState(0)
 
+//   const GlobalStyle = createGlobalStyle`
+//   * {
+//     margin: 0;
+//     padding: 0;
+//     box-sizing: border-box;
+//     font-family: Poppins;
+//   }
+//   a {
+//     text-decoration: none;
+//     color: inherit;
+//   }
+// `
+
 //   return (
 //     <>
-//    <Button/>
+//     <GlobalStyle />
+//    {/* <Button/>
 //    <Layout/>
 //    <Sidebar/>
 //    <ModalWrapper/>
 //    <InputField/>
 //    <OrgTree />
 //    <StatusBadge/>
-//    <StatusCard />
+//    <StatusCard /> */}
+
+//    <CalendarRegist/>
+//    {/* <CalendarPage /> */}
  
 //     </>
 //   )
@@ -29,13 +49,57 @@
 // export default App;
 
 
-// //레이아웃 확인용 
+
+// import React from "react";
+// import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+
+// // 캘린더 관련
+// import CalendarPage from "./components/calendar/CalendarPage";
+// import CalendarRegist from "./components/calendar/CalendarRegist";
+// import CalendarDetail from "./components/calendar/CalendarDetail";
+// import CalendarEdit from "./components/calendar/CalendarEdit";
+// import CalendarDelete from "./components/calendar/CalendarDelete";
+
+// // 홈
+// import Home from "./components/Home/HomePage";
+
+// const App = () => {
+//   return (
+//     <Router>
+//       <Routes>
+//         {/* 홈 */}
+//         <Route path="/" element={<Home />} />
+
+//         {/* 캘린더 */}
+//         <Route path="/calendar" element={<CalendarPage />} />
+//         <Route path="/calendar/regist" element={<CalendarRegist />} />
+//         <Route path="/calendar/:id" element={<CalendarDetail />} />
+//         <Route path="/calendar/edit/:id" element={<CalendarEdit />} />
+//         <Route path="/calendar/delete/:id" element={<CalendarDelete />} />
+
+//         {/* 없는 경로 */}
+//         <Route path="*" element={<div>404 Not Found</div>} />
+//       </Routes>
+//     </Router>
+//   );
+// };
+
+// export default App;
+
+
+// import React from "react";
 // import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 // import Layout from "./components/common/Layout";
 
-// // 기본 페이지
+// // 홈
 // import HomePage from "./components/Home/HomePage";
-// import CalendarPage from "./components/Calendar/CalendarPage";
+
+// // 일정
+// import CalendarPage from "./components/calendar/CalendarPage";
+// import CalendarRegist from "./components/calendar/CalendarRegist";
+// import CalendarDetail from "./components/calendar/CalendarDetail";
+// import CalendarEdit from "./components/calendar/CalendarEdit";
+// import CalendarDelete from "./components/calendar/CalendarDelete";
 
 // // 업무
 // import WorkPage from "./components/Work/WorkPage";
@@ -53,25 +117,32 @@
 //   return (
 //     <Router>
 //       <Routes>
+//         {/* 공통 레이아웃 적용 */}
 //         <Route element={<Layout />}>
 //           {/* 홈 */}
 //           <Route path="/" element={<HomePage />} />
 
 //           {/* 일정 */}
-//           <Route path="/calendarPage" element={<CalendarPage />} />
+//           <Route path="/calendar" element={<CalendarPage />} />
+//           <Route path="/calendar/regist" element={<CalendarRegist />} />
+//           <Route path="/calendar/:id" element={<CalendarDetail />} />
+//           <Route path="/calendar/edit/:id" element={<CalendarEdit />} />
+//           <Route path="/calendar/delete/:id" element={<CalendarDelete />} />
 
 //           {/* 업무 */}
-//           <Route path="/workPage" element={<WorkPage />} />
+//           <Route path="/work" element={<WorkPage />} />
 //           <Route path="/work/myworklist" element={<MyWorkPage />} />
 //           <Route path="/work/reqlist" element={<RequestedWorkPage />} />
 
 //           {/* 전자결재 */}
-//          <Route path="/approvalPage" element={<ApprovalPage />} />
-// <Route path="/approval/viewerList" element={<ReferenceApprovalPage />} />
-// <Route path="/approval/draftList" element={<DraftApprovalPage />} />
-// <Route path="/approval/tempList" element={<TempApprovalPage />} />
-// <Route path="/approval/approvalList" element={<CompleteApprovalPage />} />
+//           <Route path="/approval" element={<ApprovalPage />} />
+//           <Route path="/approval/viewerList" element={<ReferenceApprovalPage />} />
+//           <Route path="/approval/draftList" element={<DraftApprovalPage />} />
+//           <Route path="/approval/tempList" element={<TempApprovalPage />} />
+//           <Route path="/approval/approvalList" element={<CompleteApprovalPage />} />
 
+//           {/* 없는 경로 */}
+//           <Route path="*" element={<div>404 Not Found</div>} />
 //         </Route>
 //       </Routes>
 //     </Router>
@@ -79,6 +150,84 @@
 // }
 
 // export default App;
+
+
+//레이아웃 확인용 
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import Layout from "./components/common/Layout";
+
+// 기본 페이지
+import HomePage from "./components/Home/HomePage";
+import CalendarPage from "./components/Calendar/CalendarPage";
+import CalendarRegist from './components/Calendar/CalendarRegist';
+
+
+// 업무
+import WorkPage from "./components/Work/WorkPage";
+import MyWorkPage from "./components/Work/MyWorkPage";
+import RequestedWorkPage from "./components/Work/RequestedWorkPage";
+
+// 전자결재
+import ApprovalPage from "./components/Approval/ApprovalPage";
+import ReferenceApprovalPage from "./components/Approval/ReferenceApprovalPage";
+import DraftApprovalPage from "./components/Approval/DraftApprovalPage";
+import TempApprovalPage from "./components/Approval/TempApprovalPage";
+import CompleteApprovalPage from "./components/Approval/CompleteApprovalPage";
+
+
+ import { createGlobalStyle } from 'styled-components';
+
+
+const GlobalStyle = createGlobalStyle`
+   * {
+     margin: 0;
+     padding: 0;
+    box-sizing: border-box;
+    font-family: Poppins;
+   }
+   a {
+     text-decoration: none;
+     color: inherit;
+   }
+ `
+
+function App() {
+
+ 
+
+  return (
+    
+    <Router>
+      <GlobalStyle />
+      <Routes>
+        <Route element={<Layout />}>
+          {/* 홈 */}
+          <Route path="/" element={<HomePage />} />
+
+          {/* 일정 */}
+          <Route path="/calendarPage" element={<CalendarPage />} />
+          <Route path="/calendar/CalendarRegist" element={<CalendarRegist />} />
+
+
+          {/* 업무 */}
+          <Route path="/workPage" element={<WorkPage />} />
+          <Route path="/work/myworklist" element={<MyWorkPage />} />
+          <Route path="/work/reqlist" element={<RequestedWorkPage />} />
+
+          {/* 전자결재 */}
+         <Route path="/approvalPage" element={<ApprovalPage />} />
+<Route path="/approval/viewerList" element={<ReferenceApprovalPage />} />
+<Route path="/approval/draftList" element={<DraftApprovalPage />} />
+<Route path="/approval/tempList" element={<TempApprovalPage />} />
+<Route path="/approval/approvalList" element={<CompleteApprovalPage />} />
+
+        </Route>
+      </Routes>
+    </Router>
+  );
+}
+
+export default App;
 
 
 
@@ -335,29 +484,33 @@
 
 
 
-import React, { useState } from "react";
-import Toast from "./components/common/Toast";
+// import React, { useState } from "react";
+// import Toast from "./components/common/Toast";
 
-function App() {
-  const [toastOpen, setToastOpen] = useState(false);
+// function App() {
+//   const [toastOpen, setToastOpen] = useState(false);
 
-  const showToast = () => {
-    setToastOpen(true);
-  };
+//   const showToast = () => {
+//     setToastOpen(true);
+//   };
 
-  return (
-    <div style={{ padding: "20px" }}>
-      <h2>Toast 테스트</h2>
-      <button onClick={showToast}>토스트 띄우기</button>
+//   return (
+//     <div style={{ padding: "20px" }}>
+//       <h2>Toast 테스트</h2>
+//       <button onClick={showToast}>토스트 띄우기</button>
 
-      <Toast
-        message="저장되었습니다."
-        isOpen={toastOpen}
-        duration={2000} // 2초 후 자동 닫힘
-        onClose={() => setToastOpen(false)}
-      />
-    </div>
-  );
-}
+//       <Toast
+//         message="저장되었습니다."
+//         isOpen={toastOpen}
+//         duration={2000} // 2초 후 자동 닫힘
+//         onClose={() => setToastOpen(false)}
+//       />
+//     </div>
+//   );
+// }
 
-export default App;
+// export default App;
+
+
+
+// ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- //
