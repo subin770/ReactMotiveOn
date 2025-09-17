@@ -1,10 +1,9 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useCalendarStore } from "../../store/calendarStore";
 import Button from "../common/Button";
+import { registCalendar } from "../motiveOn/api";  // ✅ API 모듈 import
 
 const CalendarRegist = () => {
-  const addEvent = useCalendarStore((state) => state.addEvent);
   const navigate = useNavigate();
 
   const [title, setTitle] = useState("");
@@ -15,34 +14,43 @@ const CalendarRegist = () => {
   const [category, setCategory] = useState("");
   const [content, setContent] = useState("");
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!title) {
       alert("제목을 입력하세요");
       return;
     }
-    addEvent({
+
+    // ✅ Spring 서버에 보낼 데이터 (start/end 사용)
+    const newEvent = {
       title,
-      start: `${startDate} ${startTime}`,
-      end: `${endDate} ${endTime}`,
-      category,
+      start: `${startDate} ${startTime}:00`, // ← start
+      end: `${endDate} ${endTime}:00`,       // ← end
+      catecode: category,
       content,
-    });
-    navigate("/calendar");
+      color: "#4caf50", // 기본 색상
+    };
+
+    try {
+      const res = await registCalendar(newEvent); // ✅ axios POST
+      if (res.status === 200 && res.data === "success") {
+        alert("일정이 저장되었습니다.");
+        navigate("/calendarPage");
+      } else {
+        alert("저장 실패");
+      }
+    } catch (err) {
+      console.error("등록 오류:", err);
+      alert("서버 오류 발생");
+    }
   };
 
   return (
     <div style={{ height: "100vh", display: "flex", flexDirection: "column" }}>
       {/* 본문 */}
-<div style={{ padding: "8.7px", height: "700px", overflowY: "auto" }}>
+      <div style={{ padding: "8.7px", height: "700px", overflowY: "auto" }}>
         {/* 제목 */}
         <div style={{ display: "flex", alignItems: "center", marginBottom: "13px" }}>
-          <label
-            style={{
-              width: "60px",
-              fontSize: "14px",
-              fontWeight: "bold",
-            }}
-          >
+          <label style={{ width: "60px", fontSize: "14px", fontWeight: "bold" }}>
             제목
           </label>
           <input
@@ -136,13 +144,7 @@ const CalendarRegist = () => {
 
         {/* 분류 */}
         <div style={{ display: "flex", alignItems: "center", marginBottom: "13px" }}>
-          <label
-            style={{
-              width: "60px",
-              fontSize: "14px",
-              fontWeight: "bold",
-            }}
-          >
+          <label style={{ width: "60px", fontSize: "14px", fontWeight: "bold" }}>
             분류
           </label>
           <select
@@ -158,9 +160,9 @@ const CalendarRegist = () => {
             }}
           >
             <option value="">분류를 선택하세요</option>
-            <option value="work">회사</option>
-            <option value="dept">부서</option>
-            <option value="personal">개인</option>
+            <option value="C">회사</option>
+            <option value="D">부서</option>
+            <option value="P">개인</option>
           </select>
         </div>
 
@@ -198,11 +200,7 @@ const CalendarRegist = () => {
 
       {/* 저장 버튼 */}
       <div style={{ padding: "2px 16px 5px" }}>
-        <Button
-          label="저장"
-          variant="primary"
-          onClick={handleSave}
-        />
+        <Button label="저장" variant="primary" onClick={handleSave} />
       </div>
     </div>
   );

@@ -13,21 +13,37 @@ const CalendarEventList = ({ events, selectedDate }) => {
     return `${day}일 (${weekday})`;
   };
 
+  // 선택된 날짜가 이벤트 기간 안에 포함되는지 확인
+  function isSameDay(selectedDate, start, end) {
+    if (!start || !end) return false;
+    const sel = new Date(selectedDate).setHours(0, 0, 0, 0);
+    const s = new Date(start).setHours(0, 0, 0, 0);
+    const e = new Date(end).setHours(0, 0, 0, 0);
+    return sel >= s && sel <= e;
+  }
+
+  // 필터링된 이벤트 (선택된 날짜에 해당하는 것만)
+  const filteredEvents = events.filter(
+    (event) => isSameDay(selectedDate, event.sdate, event.edate)
+  );
+
   return (
     <div
       style={{
         flex: 1,
         background: "#ffffff",
         padding: "12px",
-        position: "relative", // 버튼을 리스트 내부에 고정하기 위한 relative
+        position: "relative", // 버튼을 리스트 내부에 고정
       }}
     >
       {/* 상단 현재 날짜 */}
       <div
         style={{
-          fontWeight: "600",
+          fontWeight: "550",
           fontSize: "14px",
           marginBottom: "12px",
+          marginLeft: "-12px",
+          paddingLeft: "23px", // 달력 헤더와 정렬 맞춤
         }}
       >
         {formatDate(selectedDate)}
@@ -37,12 +53,13 @@ const CalendarEventList = ({ events, selectedDate }) => {
       <div
         style={{
           borderBottom: "0.5px solid #eee",
-          marginBottom: "8px",
+          margin: "0 -12px 8px -12px",
+          width: "calc(100% + 24px)",
         }}
       />
 
       {/* 일정이 없을 때 */}
-      {events.length === 0 ? (
+      {filteredEvents.length === 0 ? (
         <p
           style={{
             textAlign: "center",
@@ -56,24 +73,26 @@ const CalendarEventList = ({ events, selectedDate }) => {
       ) : (
         // 일정이 있을 때
         <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
-          {events.map((event, idx) => (
+          {filteredEvents.map((event, idx) => (
             <li
               key={idx}
-              style={{
-                display: "flex",
-                alignItems: "center",
-                padding: "8px 0",
-                borderBottom: "1px solid #eee",
-              }}
+              style={{ 
+                display: "flex", 
+                alignItems: "center", 
+                padding: "8px 0", 
+                borderBottom: "1px solid #eee", 
+                cursor: "pointer" }}
+              onClick={() => navigate("/calendar/detail", { state: { event } })}  // 상세 페이지로 이동
             >
+
               {/* 아이콘(색 박스) */}
               <div
                 style={{
-                  width: "12px",
-                  height: "12px",
+                  width: "4px",
+                  height: "19px",
                   borderRadius: "2px",
                   backgroundColor: event.color || "#4caf50",
-                  marginRight: "8px",
+                  marginRight: "12px",
                 }}
               />
 
@@ -82,8 +101,8 @@ const CalendarEventList = ({ events, selectedDate }) => {
                 <div style={{ fontSize: "14px", fontWeight: "500" }}>
                   {event.title}
                 </div>
-                <div style={{ fontSize: "12px", color: "#666" }}>
-                  {event.date}
+                <div style={{ fontSize: "12px", color: "#7a7a7a" }}>
+                  {event.sdate} ~ {event.edate}
                 </div>
               </div>
             </li>
@@ -91,27 +110,27 @@ const CalendarEventList = ({ events, selectedDate }) => {
         </ul>
       )}
 
-       {/* 우측 하단 플로팅 버튼 */}
-         <button
-      onClick={() => navigate("/calendar/CalendarRegist")}   // ← 이동
-      style={{
-        position: "fixed",
-        bottom: "20px",
-        right: "15px",
-        width: "40px",
-        height: "40px",
-        borderRadius: "50%",
-        backgroundColor: "#52586B",
-        color: "#fff",
-        border: "none",
-        cursor: "pointer",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-      }}
-    >
-      <IconPlus />
-    </button>
+      {/* 우측 하단 플로팅 버튼 */}
+      <button
+        onClick={() => navigate("/calendar/CalendarRegist")}
+        style={{
+          position: "fixed",
+          bottom: "15px",
+          right: "15px",
+          width: "32px",
+          height: "32px",
+          borderRadius: "50%",
+          backgroundColor: "#52586B",
+          color: "#fff",
+          border: "none",
+          cursor: "pointer",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        <IconPlus />
+      </button>
     </div>
   );
 };

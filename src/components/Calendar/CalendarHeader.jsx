@@ -1,34 +1,80 @@
 import React, { Component } from "react";
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
+import interactionPlugin from "@fullcalendar/interaction"; // ✅ 날짜/이벤트 클릭 추가
+import { getCalendarList } from "../motiveOn/api";
 
 class CalendarPage extends Component {
   state = {
     currentTitle: "",
+    events: [],
   };
 
   touchStartX = 0;
 
+  // 달력 타이틀(YYYY/MM) 업데이트
   handleDatesSet = (info) => {
     const year = info.view.currentStart.getFullYear();
     const month = String(info.view.currentStart.getMonth() + 1).padStart(2, "0");
     this.setState({ currentTitle: `${year}/${month}` });
+
+    // ✅ 오늘 버튼 눌렀을 때도 CalendarEventList 갱신
+    if (this.props.setSelectedDate) {
+      this.props.setSelectedDate(new Date());
+    }
   };
 
+  // 스와이프 시작
   handleTouchStart = (e) => {
     this.touchStartX = e.changedTouches[0].clientX;
   };
 
+  // 스와이프 종료 → 달력 이동
   handleTouchEnd = (e) => {
     const diff = e.changedTouches[0].clientX - this.touchStartX;
     const calendarApi = this.calendarRef.getApi();
 
     if (diff > 50) {
-      calendarApi.prev(); // 오른쪽 스와이프 → 이전 달
+      calendarApi.prev(); // 오른쪽 스와이프
     } else if (diff < -50) {
-      calendarApi.next(); // 왼쪽 스와이프 → 다음 달
+      calendarApi.next(); // 왼쪽 스와이프
     }
   };
+
+  // 일정 불러오기
+  async componentDidMount() {
+    try {
+      const res = await getCalendarList(); // api.js에서 로그인 사용자 eno 자동 추출
+      const data = res.data.calendarList || [];
+
+      const events = data.map((event) => {
+        const startDate = new Date(event.sdate);
+        const endDate = new Date(event.edate);
+
+        // FullCalendar는 end를 exclusive로 해석 → 하루 보정
+        endDate.setDate(endDate.getDate() + 1);
+
+        // catecode 에 따라 색상 매핑
+        let color = "#9bc59c";
+        if (event.catecode === "C") color = "#f76258"; // 회사
+        else if (event.catecode === "D") color = "#71b2e7"; // 부서
+        else if (event.catecode === "P") color = "#94c296"; // 개인
+
+        return {
+          id: event.ccode,
+          title: `${event.title} `,
+          start: startDate.toLocaleDateString("sv-SE"),
+          end: endDate.toLocaleDateString("sv-SE"),
+          color,
+          content: event.content,
+        };
+      });
+
+      this.setState({ events });
+    } catch (err) {
+      console.error("일정 불러오기 실패:", err);
+    }
+  }
 
   render() {
     return (
@@ -43,9 +89,9 @@ class CalendarPage extends Component {
         onTouchStart={this.handleTouchStart}
         onTouchEnd={this.handleTouchEnd}
       >
+        {/* 스타일 */}
         <style>
           {`
-            /* 전체 달력 컨테이너 */
             .fc {
               width: 100% !important;
               height: 100% !important;
@@ -54,7 +100,6 @@ class CalendarPage extends Component {
               box-sizing: border-box;
             }
 
-            /* 달력 그리드 및 테이블 */
             .fc-view-harness,
             .fc-scrollgrid,
             .fc-scrollgrid-sync-table,
@@ -68,7 +113,6 @@ class CalendarPage extends Component {
               border-collapse: collapse !important;
             }
 
-            /* 좌우 여백 제거 */
             .fc-scrollgrid {
               border-left: none !important;
               border-right: none !important;
@@ -82,19 +126,21 @@ class CalendarPage extends Component {
               border-right: none !important;
             }
 
-            /* 요일 헤더 (일~토) */
             .fc-col-header-cell-cushion {
-              font-size: 10.8px !important;  /* 글씨 크기 줄임 */
+              font-size: 10.8px !important;
               font-weight: 500 !important;
-              padding: 2px 0 !important;   /* 세로 여백 줄임 */
+              padding: 2px 0 !important;
+              display: flex !important;
+              align-items: center !important;
+              justify-content: center !important;
+              height: 100% !important;
+              line-height: 2.1 !important;
             }
 
-            /* 날짜 숫자 */
             .fc-daygrid-day-number {
               font-size: 11px;
             }
 
-            /* 상단 툴바 */
             .fc-header-toolbar {
               display: flex !important;
               justify-content: space-between !important;
@@ -103,7 +149,6 @@ class CalendarPage extends Component {
               margin-bottom: 2px !important;
             }
 
-            /* 타이틀 스타일 */
             .fc-toolbar-title {
               font-size: 18px !important;
               font-weight: 600 !important;
@@ -111,7 +156,6 @@ class CalendarPage extends Component {
               padding-left: 12px;
             }
 
-            /* 오늘 버튼 */
             .fc-today-button {
               background: #fff !important;
               border: 1px solid #e6e6e6 !important;
@@ -122,34 +166,21 @@ class CalendarPage extends Component {
               cursor: pointer;
             }
 
-            /* 타이틀과 요일 헤더 사이 간격 줄이기 */
-.fc-toolbar {
-  margin-bottom: 0 !important; /* 기본 16px → 4px */F
-}
+            .fc-toolbar {
+              margin-bottom: 0 !important;
+            }
 
-.fc-header-toolbar {
-  padding-top: 3px !important;  /* 툴바 하단 패딩 제거 */
-}
-
-/* 요일(일 월 화 …) 글씨를 칸 안에서 위아래 중앙 정렬 */
-.fc-col-header-cell-cushion {
-  display: flex !important;
-  align-items: center !important;  /* 세로 중앙 */
-  justify-content: center !important; /* 가로 중앙 */
-  height: 100% !important;         /* 칸 전체 기준 */
-  padding: 0 !important;           /* 불필요한 패딩 제거 */
-  line-height: 2.1 !important;     /* 자연스러운 줄 높이 */
-}
-
-
+            .fc-header-toolbar {
+              padding-top: 13px !important;
+            }
           `}
         </style>
 
-        {/* 달력 영역 (2/3) */}
+        {/* 달력 영역 */}
         <div style={{ flex: 2, minHeight: 0 }}>
           <FullCalendar
             ref={(el) => (this.calendarRef = el)}
-            plugins={[dayGridPlugin]}
+            plugins={[dayGridPlugin, interactionPlugin]} // ✅ 클릭 가능
             initialView="dayGridMonth"
             locale="ko"
             headerToolbar={{
@@ -157,21 +188,60 @@ class CalendarPage extends Component {
               center: "",
               right: "today",
             }}
-            buttonText={{
-              today: "오늘",
-            }}
+            buttonText={{ today: "오늘" }}
             datesSet={this.handleDatesSet}
             titleFormat={() => this.state.currentTitle}
             dayHeaderFormat={{ weekday: "short" }}
             dayCellContent={(arg) => arg.date.getDate()}
             height="100%"
             contentHeight="100%"
-
+            events={this.state.events}
             
+            // ✅ 이벤트 클릭 → 선택된 날짜 전달
+            eventClick={(arg) => {
+              if (this.props.setSelectedDate && arg.event?.start) {
+                this.props.setSelectedDate(new Date(arg.event.start));
+              }
+            }}
+            
+            // ✅ 날짜 클릭 → 선택된 날짜 전달
+            dateClick={(info) => {
+              if (this.props.setSelectedDate) {
+                this.props.setSelectedDate(new Date(info.dateStr));
+              }
+            }}
+
+            eventContent={(arg) => {
+              const color = arg.event.backgroundColor || "#9bc59c";
+              return {
+                html: `
+                  <div style="
+                    display:flex;
+                    align-items:center;
+                    font-size:10px;
+                    font-weight:500;
+                    overflow:hidden;
+                    white-space:nowrap;
+                    text-overflow:ellipsis;
+                  ">
+                    <span style="
+                      display:inline-block;
+                      width:2px;
+                      height:6px;
+                      border-radius:50%;
+                      background:${color};
+                      opacity:1;
+                      margin-right:4px;
+                    "></span>
+                    ${arg.event.title}
+                  </div>
+                `,
+              };
+            }}
           />
         </div>
 
-        {/* 이벤트 리스트 영역 (1/3) */}
+        {/* 이벤트 리스트 영역 (빈 상태 유지) */}
         <div
           style={{
             flex: 1,
@@ -179,9 +249,7 @@ class CalendarPage extends Component {
             overflowY: "auto",
             padding: "8px",
           }}
-        >
-          
-        </div>
+        ></div>
       </div>
     );
   }

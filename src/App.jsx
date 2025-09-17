@@ -156,16 +156,31 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Layout from "./components/common/Layout";
 
+// ===== Login =====
+import LoginForm from './components/Login/LoginForm';
+import PasswordConfirm from './components/Login/PasswordComfirm';
+import PasswordError from './components/Login/PasswordError';
+import PasswordFind from './components/Login/PasswordFind';
+
 // 기본 페이지
 import HomePage from "./components/Home/HomePage";
+
+
+// ===== 일정 =====
 import CalendarPage from "./components/Calendar/CalendarPage";
 import CalendarRegist from './components/Calendar/CalendarRegist';
+import CalendarDetail from "./components/Calendar/CalendarDetail";
+import CalendarEdit from "./components/Calendar/CalendarEdit";   // ✅ 일정 수정 추가
+
 
 
 // 업무
-import WorkPage from "./components/Work/WorkPage";
-import MyWorkPage from "./components/Work/MyWorkPage";
-import RequestedWorkPage from "./components/Work/RequestedWorkPage";
+import MyWorkPage from './components/Work/MyWorkPage';
+import RequestedWorkPage from './components/Work/RequestedWorkPage';
+import WorkDetail from './components/Work/WorkDetail';
+import WorkDetailEdit from './components/Work/WorkDetailEdit';
+import WorkPage from './components/Work/WorkPage';
+import WorkRegist from './components/Work/WorkRegist';
 
 // 전자결재
 import ApprovalPage from "./components/Approval/ApprovalPage";
@@ -173,6 +188,9 @@ import ReferenceApprovalPage from "./components/Approval/ReferenceApprovalPage";
 import DraftApprovalPage from "./components/Approval/DraftApprovalPage";
 import TempApprovalPage from "./components/Approval/TempApprovalPage";
 import CompleteApprovalPage from "./components/Approval/CompleteApprovalPage";
+
+// ===== Common =====
+import OrgTree from './components/common/OrgTree';
 
 
  import { createGlobalStyle } from 'styled-components';
@@ -200,34 +218,121 @@ function App() {
     <Router>
       <GlobalStyle />
       <Routes>
+
+ {/* ===== Login 관련 (Layout 없음) ===== */}
+        <Route path="/login" element={<LoginForm />} />
+        <Route path="/login/passwordConfirm" element={<PasswordConfirm />} />
+        <Route path="/login/passwordError" element={<PasswordError />} />
+        <Route path="/login/passwordFind" element={<PasswordFind />} />
+
         <Route element={<Layout />}>
           {/* 홈 */}
-          <Route path="/" element={<HomePage />} />
+          <Route path="/home" element={<HomePage />} />
 
-          {/* 일정 */}
-          <Route path="/calendarPage" element={<CalendarPage />} />
-          <Route path="/calendar/CalendarRegist" element={<CalendarRegist />} />
+         {/* 일정 */}
+<Route path="/calendarPage" element={<CalendarPage />} />
+<Route path="/calendar/CalendarRegist" element={<CalendarRegist />} />
+<Route path="/calendar/detail" element={<CalendarDetail />} />
+<Route path="/calendar/CalendarEdit" element={<CalendarEdit />} />   {/* ✅ 추가 */}
 
 
-          {/* 업무 */}
-          <Route path="/workPage" element={<WorkPage />} />
+
+            {/* ===== Work 관련 (Layout 포함) ===== */}
+          <Route path="/work" element={<WorkPage />} />
           <Route path="/work/myworklist" element={<MyWorkPage />} />
           <Route path="/work/reqlist" element={<RequestedWorkPage />} />
+          <Route path="/work/detail" element={<WorkDetail />} />
+          <Route path="/work/detailedit" element={<WorkDetailEdit />} />
+          <Route path="/work/regist" element={<WorkRegist />} />
+          <Route path="/common/OrgTree" element={<OrgTree />} />
+          
 
           {/* 전자결재 */}
          <Route path="/approvalPage" element={<ApprovalPage />} />
-<Route path="/approval/viewerList" element={<ReferenceApprovalPage />} />
-<Route path="/approval/draftList" element={<DraftApprovalPage />} />
-<Route path="/approval/tempList" element={<TempApprovalPage />} />
-<Route path="/approval/approvalList" element={<CompleteApprovalPage />} />
+        <Route path="/approval/viewerList" element={<ReferenceApprovalPage />} />
+        <Route path="/approval/draftList" element={<DraftApprovalPage />} />
+        <Route path="/approval/tempList" element={<TempApprovalPage />} />
+        <Route path="/approval/approvalList" element={<CompleteApprovalPage />} />
 
         </Route>
+        {/* ===== 기본 경로 처리 (로그인으로 리디렉션) ===== */}
+        <Route path="*" element={<LoginForm />} />
       </Routes>
     </Router>
   );
 }
 
 export default App;
+
+
+
+
+
+
+
+// // src/App.jsx
+// import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+// import CalendarPage from "./components/calendar/CalendarPage";
+// import CalendarRegist from "./components/calendar/CalendarRegist";
+// import CalendarDetail from "./components/calendar/CalendarDetail";
+// import CalendarEdit from "./components/calendar/CalendarEdit";
+// import CalendarDelete from "./components/calendar/CalendarDelete";
+
+// function App() {
+//   return (
+//     <Router>
+//       <Routes>
+//         {/* 메인 달력 페이지 */}
+//         <Route path="/calendarPage" element={<CalendarPage />} />
+
+//         {/* 등록폼 */}
+//         <Route path="/calendar/regist" element={<CalendarRegist />} />
+
+//         {/* ==================== 테스트용 라우트 ==================== */}
+
+//         {/* 상세 테스트 */}
+//         <Route
+//           path="/calendar/detailTest"
+//           element={
+//             <CalendarDetail
+//               event={{
+//                 id: 1,
+//                 title: "테스트 일정",
+//                 start: "2025-09-26 14:00",
+//                 content: "테스트 상세 내용입니다.",
+//                 color: "#4caf50",
+//               }}
+//               onDelete={(id) => alert(`${id}번 일정 삭제됨`)}
+//             />
+//           }
+//         />
+
+//         {/* 수정 테스트 */}
+//         <Route
+//           path="/calendar/editTest"
+//           element={
+//             <CalendarEdit />
+//           }
+//         />
+
+//         {/* 삭제 테스트 */}
+//         <Route
+//           path="/calendar/deleteTest"
+//           element={
+//             <CalendarDelete
+//               eventId={1}
+//               onDelete={(id) => alert(`${id}번 일정 삭제됨`)}
+//             />
+//           }
+//         />
+//       </Routes>
+//     </Router>
+//   );
+// }
+
+// export default App;
+
+
 
 
 

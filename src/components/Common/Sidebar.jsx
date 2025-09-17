@@ -6,11 +6,12 @@ const Sidebar = ({ isOpen, onClose, user, onNavigate }) => {
 
   // 메뉴 데이터
   const menuItems = [
+    { label: "홈", path: "/home", type: "link" },
     { label: "일정", path: "/calendarPage", type: "link" },
     {
       label: "업무",
       children: [
-        { label: "홈", path: "/workPage" },
+        { label: "홈", path: "/work" },
         { label: "내업무", path: "/work/myworklist" },
         { label: "요청한업무", path: "/work/reqlist" },
       ],

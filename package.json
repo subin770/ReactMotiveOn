@@ -11,11 +11,13 @@
   },
   "dependencies": {
     "@fullcalendar/daygrid": "^6.1.19",
+    "@fullcalendar/google-calendar": "^6.1.19",
     "@fullcalendar/interaction": "^6.1.19",
     "@fullcalendar/react": "^6.1.19",
     "axios": "^1.11.0",
     "bootstrap": "^5.3.8",
     "date-fns": "^4.1.0",
+    "dayjs": "^1.11.18",
     "jquery": "^3.7.1",
     "jstree": "^3.3.17",
     "rc-tree": "^5.13.1",
