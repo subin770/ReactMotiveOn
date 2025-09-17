@@ -1,98 +1,115 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { IconPlus } from "../Work/icons";
 import { useNavigate } from "react-router-dom";
+import { getMyWorkList } from "../motiveOn/api";
+import StatusBadge from "../common/StatusBadge";
 
 export default function MyWorkListPage() {
   const navigate = useNavigate();
+  const [workList, setWorkList] = useState([]);
 
-  const workList = [
-    { title: "업무 제목", dept: "00부", name: "김00", status: "대기", deadline: "2025.09.07" },
-    { title: "업무 제목", dept: "00부", name: "김00", status: "대기", deadline: "2025.09.07" },
-    { title: "업무 제목", dept: "00부", name: "김00", status: "대기", deadline: "2025.09.07" },
-    { title: "업무 제목", dept: "00부", name: "김00", status: "진행", deadline: "2025.09.07" },
-    { title: "업무 제목", dept: "00부", name: "김00", status: "완료", deadline: "2025.09.07" },
-    { title: "업무 제목", dept: "00부", name: "김00", status: "대기", deadline: "2025.09.07" },
-    { title: "업무 제목", dept: "00부", name: "김00", status: "대기", deadline: "2025.09.07" },
-    { title: "업무 제목", dept: "00부", name: "김00", status: "대기", deadline: "2025.09.07" },
-    { title: "업무 제목", dept: "00부", name: "김00", status: "대기", deadline: "2025.09.07" },
-    { title: "업무 제목", dept: "00부", name: "김00", status: "대기", deadline: "2025.09.07" },
-    { title: "업무 제목", dept: "00부", name: "김00", status: "대기", deadline: "2025.09.07" },
-  ];
+  useEffect(() => {
+    const fetchMyWork = async () => {
+      try {
+        const res = await getMyWorkList();
+        setWorkList(res.data.list || []);
+      } catch (err) {
+        console.error("업무 목록 가져오기 실패:", err);
+      }
+    };
+    fetchMyWork();
+  }, []);
+
+  const statusMap = {
+    WAIT: "대기",
+    PROGRESS: "진행중",
+    DONE: "완료",
+  };
+
+  useEffect(() => {
+    let startX = 0;
+
+    const handleTouchStart = (e) => {
+      startX = e.touches[0].clientX;
+    };
+
+    const handleTouchEnd = (e) => {
+      const endX = e.changedTouches[0].clientX;
+      const diffX = endX - startX;
+
+      if (diffX > 80) {
+        navigate(-1);
+      }
+      if (diffX < -80) {
+        navigate(1);
+      }
+    };
+
+    document.addEventListener("touchstart", handleTouchStart);
+    document.addEventListener("touchend", handleTouchEnd);
+
+    return () => {
+      document.removeEventListener("touchstart", handleTouchStart);
+      document.removeEventListener("touchend", handleTouchEnd);
+    };
+  }, [navigate]);
+
+  const formatWorkPeriod = (work) => {
+    const start = work.wdate ? new Date(work.wdate).toLocaleDateString() : "";
+    const end = work.wend ? new Date(work.wend).toLocaleDateString() : "";
+    if (!start && !end) return "미정";
+    return start && end ? `${start} ~ ${end}` : start || end;
+  };
 
   return (
-    <div
-      style={{
-        padding: "16px",
-        display: "flex",
-        flexDirection: "column",
-        height: "100vh", // ✅ 전체 화면 채우기
-        boxSizing: "border-box",
-      }}
-    >
-      {/* 상단 헤더 */}
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          marginBottom: "8px",
-          fontWeight: "bold",
-          flexShrink: 0, // ✅ 줄어들지 않게
-        }}
-      >
+    <div style={{ padding: "16px", height: "788px", overflow: "auto" }}>
+      <div style={{ display: "flex", alignItems: "center", marginBottom: "16px", fontWeight: "bold" }}>
         <span>내 업무 &gt; 전체</span>
       </div>
+      <hr style={{ border: "0.1px solid #eee", margin: "8px 0" }} />
 
-      <hr style={{ border: "0.1px solid #eee", margin: "8px 0", flexShrink: 0 }} />
-
-      {/* 업무 리스트 (스크롤 영역) */}
-      <div
-        style={{
-          flex: 1, // ✅ 남은 공간 차지
-          overflowY: "auto", // ✅ 스크롤 가능
-          paddingRight: "4px", // 스크롤바 여유
-        }}
-      >
-        {workList.map((work, i) => (
-          <div
-            key={i}
-            style={{
-              background: "#fff",
-              padding: "12px",
-              borderRadius: "12px",
-              boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
-              marginBottom: "12px",
-            }}
-          >
-            <div style={{ fontWeight: "bold", marginBottom: "4px" }}>
-              {work.title}
-            </div>
-            <div style={{ fontSize: "13px", color: "#555" }}>
-              {work.dept} {work.name}
-            </div>
-            <div style={{ fontSize: "13px", color: "#777" }}>
-              상태: {work.status}
-            </div>
+      <div>
+        {workList.length === 0 ? (
+          <div style={{ color: "#777", fontSize: "14px" }}>업무가 없습니다.</div>
+        ) : (
+          workList.map((work) => (
             <div
+              key={work.wcode}
               style={{
-                fontSize: "12px",
-                color: "#999",
-                marginTop: "4px",
+                position: "relative", // 상태 배지 absolute 기준
+                background: "#fff",
+                padding: "12px",
+                borderRadius: "12px",
+                boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
+                marginBottom: "12px",
+                cursor: "pointer"
               }}
+              onClick={() => navigate(`/work/detail/${work.wcode}`, { state: { from: "mywork" } })}
             >
-              ~{work.deadline}
+              {/* 상태 배지 우측 상단 */}
+              <div style={{ position: "absolute", top: "12px", right: "12px" }}>
+                <StatusBadge label={statusMap[work.wstatus] || "미정"} />
+              </div>
+
+              <div style={{ fontWeight: "bold", marginBottom: "4px" }}>{work.wtitle || work.wcode}</div>
+              <div style={{ fontSize: "13px", color: "#555" }}>
+                {work.dno} {work.managerName || "담당자 없음"}
+              </div>
+              <div style={{ fontSize: "12px", color: "#999", marginTop: "4px" }}>
+                기한: {formatWorkPeriod(work)}
+              </div>
             </div>
-          </div>
-        ))}
+          ))
+        )}
       </div>
 
-      {/* 우측 하단 플로팅 버튼 */}
       <button
         style={{
           position: "fixed",
           bottom: "20px",
           right: "15px",
-          width: "40px",
-          height: "40px",
+          width: "30px",
+          height: "30px",
           borderRadius: "50%",
           backgroundColor: "#52586B",
           color: "#fff",
@@ -100,8 +117,7 @@ export default function MyWorkListPage() {
           cursor: "pointer",
           display: "flex",
           alignItems: "center",
-          justifyContent: "center",
-          boxShadow: "0 2px 6px rgba(0,0,0,0.2)",
+          justifyContent: "center"
         }}
         onClick={() => navigate("/work/regist")}
       >

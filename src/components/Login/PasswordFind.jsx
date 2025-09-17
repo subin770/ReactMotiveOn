@@ -1,22 +1,43 @@
-import React, { useState, useRef } from 'react'
-import styled from 'styled-components'
-import { create } from 'zustand'
-import { createJSONStorage, persist } from 'zustand/middleware'
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import logo from "../../assets/img/motiveon-login.png";
-import Button from '../common/Button'
-import InputField from '../common/InputField'
+import Button from '../common/Button';
+import InputField from '../common/InputField';
+import PasswordError from '../Login/PasswordError';
+
 
 const PasswordReset = () => {
   const [email, setEmail] = useState("");
+    const [isErrorOpen, setIsErrorOpen] = useState(false); // ← 여기 필수!
 
-  const handleSubmit = (e) => {
+  const navigate = useNavigate();
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
+
     if (!email) {
       alert("이메일을 입력해주세요.");
       return;
     }
-    // 서버로 비밀번호 찾기 요청 API 호출
-    console.log("비밀번호 찾기 요청 이메일:", email);
+
+    try {
+      const response = await fetch('/api/commons/check-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      });
+
+      const data = await response.json();
+
+      if (data.exists) {
+        navigate('/login/passwordConfirm', { state: { email } });
+      } else {
+        setIsErrorOpen(true); // 이메일 없으면 모달 열기
+      }
+    } catch (error) {
+      console.error("이메일 확인 중 오류 발생:", error);
+      alert("서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
+    }
   };
 
   return (
@@ -32,7 +53,7 @@ const PasswordReset = () => {
     >
       {/* 로고 */}
       <img
-        src={logo} // 실제 로고 경로 넣어주세요
+        src={logo}
         alt="Motive On"
         style={{ width: "160px", marginBottom: "40px" }}
       />
@@ -62,6 +83,9 @@ const PasswordReset = () => {
 
         <Button label="확인" variant="primary" type="submit" />
       </form>
+
+       {/* 모달 */}
+      <PasswordError isOpen={isErrorOpen} onClose={() => setIsErrorOpen(false)} />
     </div>
   );
 };

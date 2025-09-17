@@ -1,15 +1,74 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { useParams, useLocation, useNavigate } from "react-router-dom";
 import StatusBadge from "../common/StatusBadge";
 import Button from "../common/Button";
+import { getWorkDetail } from "../motiveOn/api"; // API 필요
 
-export default function RequestedWorkPage() {
+export default function WorkDetail() {
+  const { wcode } = useParams();
+  const location = useLocation();
+  const navigate = useNavigate();
+  const from = location.state?.from;
+
+  const [work, setWork] = useState(null);
+
+  // 상태 한글 변환 맵
+  const statusMap = {
+    WAIT: "대기",
+    ING: "진행중",
+    DONE: "완료",
+  };
+
+  useEffect(() => {
+    const fetchWorkDetail = async () => {
+      try {
+        const res = await getWorkDetail(wcode);
+        setWork(res.data.work); // mapper에서 내려준 데이터 그대로 사용
+      } catch (err) {
+        console.error("업무 상세 불러오기 실패:", err);
+      }
+    };
+
+    fetchWorkDetail();
+  }, [wcode]);
+
+  useEffect(() => {
+    let startX = 0;
+
+    const handleTouchStart = (e) => {
+      startX = e.touches[0].clientX;
+    };
+
+    const handleTouchEnd = (e) => {
+      const endX = e.changedTouches[0].clientX;
+      const diffX = endX - startX;
+
+      if (diffX > 80) {
+        navigate(-1); // history back
+      }
+      if (diffX < -80) {
+        navigate(1); // history forward
+      }
+    };
+
+    document.addEventListener("touchstart", handleTouchStart);
+    document.addEventListener("touchend", handleTouchEnd);
+
+    return () => {
+      document.removeEventListener("touchstart", handleTouchStart);
+      document.removeEventListener("touchend", handleTouchEnd);
+    };
+  }, [navigate]);
+
+  if (!work) return <div>로딩중...</div>;
+
   return (
     <div
       style={{
         maxWidth: "390px",
         margin: "0 auto",
         fontFamily: "Arial, sans-serif",
-        height: "788px", // 화면 전체 높이
+        height: "788px",
         display: "flex",
         flexDirection: "column",
         padding: "16px 16px 0px",
@@ -19,23 +78,28 @@ export default function RequestedWorkPage() {
       {/* 고정 헤더 */}
       <div style={{ marginBottom: "12px" }}>
         <h3 style={{ margin: 0, fontSize: "15px", fontWeight: "bold", color: "#222" }}>
-          테스트
+          {work.wtitle || "제목 없음"}
         </h3>
         <hr style={{ marginTop: "4px", border: "none", borderTop: "1px solid #ddd" }} />
       </div>
 
-      {/* 내용 영역 - 스크롤 */}
-      <div
-        style={{
-          flex: 1,
-          overflowY: "auto",
-          paddingBottom: "16px",
-        }}
-      >
-        {/* 공통 행 */}
-        {[{ label: "요청자", value: "김민준" },
-          { label: "담당자", value: "박동규" },
-          { label: "기한", value: "2025.09.09" }].map((item, idx) => (
+      {/* 내용 영역 */}
+      <div style={{ flex: 1, overflowY: "auto", paddingBottom: "16px" }}>
+        {[
+          { label: "요청자", value: work.requesterName || "미정" },
+          { label: "담당자", value: work.managerName || "담당자 없음" },
+          {
+  label: "기한",
+  value: (() => {
+    const start = work.wdate ? new Date(work.wdate).toLocaleDateString() : "";
+    const end = work.wend ? new Date(work.wend).toLocaleDateString() : "";
+    if (!start && !end) return "미정";
+    return start && end ? `${start} ~ ${end}` : start || end;
+  })(),
+}
+
+
+        ].map((item, idx) => (
           <div key={idx} style={{ display: "flex", alignItems: "center", marginBottom: "12px" }}>
             <div style={{ width: "70px", fontSize: "13px", fontWeight: "bold", color: "#555" }}>
               {item.label}
@@ -55,15 +119,11 @@ export default function RequestedWorkPage() {
           </div>
         ))}
 
-        {/* 상태 */}
         <div style={{ display: "flex", alignItems: "center", marginBottom: "12px" }}>
-          <div style={{ width: "70px", fontSize: "13px", fontWeight: "bold", color: "#555" }}>
-            상태
-          </div>
-          <StatusBadge label="대기" />
+          <div style={{ width: "70px", fontSize: "13px", fontWeight: "bold", color: "#555" }}>상태</div>
+          <StatusBadge label={statusMap[work.wstatus] || "미정"} />
         </div>
 
-        {/* 내용 */}
         <div style={{ display: "flex" }}>
           <div
             style={{
@@ -89,26 +149,26 @@ export default function RequestedWorkPage() {
               whiteSpace: "pre-wrap",
               wordBreak: "break-word",
             }}
-          >
-            테스트입니다. 테스트입니다. 긴 문장이 와도 자동으로 줄바꿈이 됩니다.
-            
-          </div>
+            dangerouslySetInnerHTML={{ __html: work.wcontent || "내용 없음" }}
+          />
         </div>
       </div>
 
-      {/* 하단 버튼 영역 */}
-      <div
-        style={{
-          borderTop: "1px solid #ddd",
-          paddingTop: "12px",
-          display: "flex",
-          gap: "12px",
-          marginBottom: "16px"
-        }}
-      >
-        <Button label="수정" variant="primary" onClick={() => console.log("수정 클릭")} />
-        <Button label="삭제" variant="danger" onClick={() => console.log("삭제 클릭")} />
-      </div>
+      {/* 버튼 영역: 요청업무에서 들어온 경우만 */}
+      {from === "reqlist" && (
+        <div
+          style={{
+            borderTop: "1px solid #ddd",
+            paddingTop: "12px",
+            display: "flex",
+            gap: "12px",
+            marginBottom: "16px",
+          }}
+        >
+          <Button label="수정" variant="primary" onClick={() => navigate(`/work/detailedit/${wcode}`)} />
+          <Button label="삭제" variant="danger" onClick={() => console.log("삭제 클릭")} />
+        </div>
+      )}
     </div>
   );
 }

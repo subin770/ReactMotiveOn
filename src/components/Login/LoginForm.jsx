@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react'
+import React, { useState, useRef, forwardRef  } from 'react'
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components'
 import { create } from 'zustand'
@@ -10,13 +10,12 @@ import bgImage from "../../assets/img/빌딩.jpg";
 import axios from 'axios';
 
 
-// Zustand Store
 export const useUserStore = create(
   persist(
     (set) => ({
       user: null,
       isLoggedIn: false,
-      login: (user) => set({ user: user, isLoggedIn: true }),  // ✅ user 객체 그대로 저장
+      login: (user) => set({ user: user, isLoggedIn: true }), 
       logout: () => set({ user: null, isLoggedIn: false }),
     }),
     {
@@ -84,11 +83,9 @@ async function handleSubmit() {
     });
 
     if (res.status === 200) {
-      // ✅ 전체 user 정보 저장 (eno, name, authority 등 백엔드에서 내려준 값)
-      login(res.data);
-
-      // ✅ 세션스토리지에서 꺼낸 eno를 네비게이션에 활용
-      navigate(`/home?Eno=${res.data.eno}`);
+      // 로그인 성공 → sessionStorage에 저장
+      login(res.data.eno);   // Zustand store + sessionStorage
+      navigate(`/home?eno=${eno}`);
     }
   } catch (error) {
     alert("로그인 실패: 사번 또는 비밀번호를 확인하세요.");
@@ -97,7 +94,7 @@ async function handleSubmit() {
 function handleKeyDown(e) {
   if (e.key === "Enter") {
     e.preventDefault();
-    buttonRef.current.click();
+       handleSubmit(); // 바로 실행
   }
 }
   return (
@@ -124,6 +121,7 @@ function handleKeyDown(e) {
       </Box>
     </Container>
   );
-}
 
+
+}
 export default Login;

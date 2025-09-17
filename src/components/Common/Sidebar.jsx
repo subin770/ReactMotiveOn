@@ -1,7 +1,9 @@
 import React, { useState } from "react";
 import arrowIcon from "../../assets/img/dropdown.png";
+import { IconLogout } from "../common/icons"; // 만든 아이콘 불러오기
 
-const Sidebar = ({ isOpen, onClose, user, onNavigate }) => {
+
+const Sidebar = ({ isOpen, onClose, user, onNavigate, onLogout }) => {
   const [openMenu, setOpenMenu] = useState(null);
 
   // 메뉴 데이터
@@ -19,7 +21,7 @@ const Sidebar = ({ isOpen, onClose, user, onNavigate }) => {
     {
       label: "전자결재",
       children: [
-        { label: "홈", path: "/approvalPage" },
+        { label: "홈", path: "/approval" },
         { label: "참조문서함", path: "/approval/viewerList" },
         { label: "기안문서함", path: "/approval/draftList" },
         { label: "임시문서함", path: "/approval/tempList" },
@@ -161,6 +163,36 @@ const Sidebar = ({ isOpen, onClose, user, onNavigate }) => {
           ))}
         </ul>
       </nav>
+   {/* 로그아웃 버튼 */}
+      <button
+        onClick={onLogout} // ✅ 여기서 실제 로그아웃 함수 실행
+        style={{
+          position: "absolute",
+          bottom: "20px",
+          right: "20px",
+          display: "flex",
+          alignItems: "center",
+          gap: "6px",
+          background: "transparent",
+          border: "none",
+          cursor: "pointer",
+          padding: "8px 12px",
+          borderRadius: "8px",
+          fontSize: "13px",
+          color: "#333",
+          transition: "background 0.2s",
+        }}
+        onMouseEnter={(e) =>
+          (e.currentTarget.style.background = "#eee")
+        }
+        onMouseLeave={(e) =>
+          (e.currentTarget.style.background = "transparent")
+        }
+      >
+        <IconLogout />
+        <span>로그아웃</span>
+      </button>
+
     </aside>
   );
 };

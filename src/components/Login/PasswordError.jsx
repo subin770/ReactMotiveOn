@@ -1,4 +1,5 @@
 import React from "react";
+import Button from "../common/Button";
 
 function PasswordError({ isOpen, onClose }) {
   if (!isOpen) return null;
@@ -32,26 +33,13 @@ function PasswordError({ isOpen, onClose }) {
           style={{
             fontSize: "14px",
             marginBottom: "20px",
-            whiteSpace: "pre-line", // \n 줄바꿈 적용
+            whiteSpace: "pre-line",
           }}
         >
           {"올바른 메일 주소가 아닙니다.\n확인 후 다시 시도해 주세요."}
         </p>
 
-        <button
-          onClick={onClose}
-          style={{
-            width: "100%",
-            padding: "10px",
-            border: "none",
-            borderRadius: "6px",
-            background: "#3A8DFE",
-            color: "#fff",
-            cursor: "pointer",
-          }}
-        >
-          확인
-        </button>
+        <Button label="확인" variant="primary" onClick={onClose} />
       </div>
     </div>
   );

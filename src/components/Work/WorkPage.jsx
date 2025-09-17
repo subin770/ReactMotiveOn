@@ -1,7 +1,10 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import StatusCard from "../common/StatusCard.jsx";
 
 export default function MyWorkPage() {
+  const navigate = useNavigate();
+
   const myWorkStatuses = [
     { label: "대기", count: 0, color: "#d8f5d0" },
     { label: "진행", count: 0, color: "#f9d9d4" },
@@ -20,10 +23,14 @@ export default function MyWorkPage() {
     { label: "전체", count: 0, color: "#e0e7ff" },
   ];
 
+  
+  
   return (
     <div style={{ padding: "16px", display: "flex", flexDirection: "column", gap: "16px" }}>
       {/* 내 업무 */}
-      <Section title="내 업무" showMore>
+      <Section title="내 업무" 
+               showMore 
+               onMoreClick={() => navigate("/work/myworklist")} >
         <div
           style={{
             display: "grid",
@@ -38,7 +45,10 @@ export default function MyWorkPage() {
       </Section>
 
       {/* 요청한 업무 */}
-      <Section title="요청한 업무" showMore>
+      <Section title="요청한 업무" 
+               showMore
+               onMoreClick={() => navigate("/work/reqlist")} >
+
         <div
           style={{
             display: "grid",
@@ -107,7 +117,7 @@ export default function MyWorkPage() {
   );
 }
 
-const Section = ({ title, children, showMore, fullHeight }) => {
+const Section = ({ title, children, showMore, fullHeight, onMoreClick }) => {
   return (
     <div
       style={{
@@ -118,7 +128,7 @@ const Section = ({ title, children, showMore, fullHeight }) => {
         display: "flex",
         flexDirection: "column",
         height: fullHeight ? "300px" : "auto", // fullHeight이면 고정 높이 + 내부 스크롤
-        backgroundColor: "#f9f9f9",
+        backgroundColor: "#f5f5f5",
       }}
     >
       <div
@@ -133,6 +143,7 @@ const Section = ({ title, children, showMore, fullHeight }) => {
         {showMore && (
           <span
             style={{ color: "#777", fontSize: "12px", cursor: "pointer" }}
+            onClick={onMoreClick} // 클릭 이벤트 연결
           >
             더보기
           </span>

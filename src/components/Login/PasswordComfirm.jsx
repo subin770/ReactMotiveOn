@@ -1,6 +1,7 @@
 import React from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import logo from "../../assets/img/motiveon-login.png";
-import Button from '../common/Button' // 공통 버튼 컴포넌트 import
+import Button from '../common/Button';
 import styled from 'styled-components';
 
 const Container = styled.div`
@@ -12,13 +13,6 @@ const Container = styled.div`
   padding: 20px;
   text-align: center;
   font-family: 'Noto Sans KR', sans-serif;
-`;
-
-const Logo = styled.div`
-  font-size: 24px;
-  font-weight: bold;
-  margin-bottom: 20px;
-  color: #0F1B37;
 `;
 
 const Title = styled.h2`
@@ -45,22 +39,32 @@ const Info = styled.p`
 `;
 
 function PasswordConfirm() {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const email = location.state?.email || "이메일 주소";
+
+  const handleConfirm = () => {
+    // 로그인 페이지로 이동
+    navigate('/login');
+  };
+
   return (
     <Container>
       <img
-             src={logo} // 실제 로고 경로 넣어주세요
-             alt="Motive On"
-             style={{ width: "160px", marginBottom: "40px" }}
-           />
+        src={logo}
+        alt="Motive On"
+        style={{ width: "160px", marginBottom: "40px" }}
+      />
       <Title>이메일을 확인해주세요</Title>
       <Description>
-        비밀번호 재설정 메일을 귀하의 <a href="mailto:motiveOn@gmail.com">motiveOn@gmail.com</a> 로 보냈습니다.
+        비밀번호 재설정 메일을 귀하의{" "}
+        <a href={`mailto:${email}`}>{email}</a>로 보냈습니다.
       </Description>
       <Info>
         혹시 메일을 받지 못하셨나요?<br />
         가입된 이메일이 아니거나, 스팸으로 분류될 경우 메일을 받지 못할 수 있습니다.
       </Info>
-      <Button label="확인" variant="primary" />
+      <Button label="확인" variant="primary" onClick={handleConfirm} />
     </Container>
   );
 }

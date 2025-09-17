@@ -15,6 +15,14 @@ const Layout = () => {
     checkIn: "2025-09-04 01:49",
     profileImg: "/profile.png",
   };
+  // ✅ 로그아웃 기능
+  const handleLogout = () => {
+    // 토큰 삭제 (JWT 같은 거 쓰는 경우)
+    localStorage.removeItem("token");
+
+    // 로그인 페이지로 이동
+    navigate("/login");
+  };
 
   return (
     <div style={{ width: "100%", height: "788px" }}>
@@ -30,6 +38,7 @@ const Layout = () => {
         onClose={() => setSidebarOpen(false)}
         user={userMock}
         onNavigate={navigate}
+        onLogout={handleLogout}   // ✅ 여기서 로그아웃 함수 전달
       />
 
       {/* 본문 */}
