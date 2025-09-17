@@ -75,22 +75,25 @@ function Login() {
 
 const { login } = useUserStore();
 
-async function handleSubmit() {
+async function handleSubmit(e) {
+  if (e) e.preventDefault(); // form 제출 기본 동작 방지
+
   try {
     const res = await axios.post("/api/commons/login", {
       eno: eno,
-      pwd: password
+      pwd: password,
     });
 
-    if (res.status === 200) {
-      // 로그인 성공 → sessionStorage에 저장
-      login(res.data.eno);   // Zustand store + sessionStorage
-      navigate(`/home?eno=${eno}`);
+    // ✅ 로그인 성공 시 실행
+    if (res.status === 200 && res.data) {
+      login(res.data);     // Zustand store에 전체 user 객체 저장
+      navigate("/home");   // 홈 화면으로 이동
     }
   } catch (error) {
     alert("로그인 실패: 사번 또는 비밀번호를 확인하세요.");
   }
 }
+
 function handleKeyDown(e) {
   if (e.key === "Enter") {
     e.preventDefault();
@@ -101,27 +104,31 @@ function handleKeyDown(e) {
     <Container>
       <Box>
         <Logo src={logo} alt="logo" />
-        <InputField
-          type="text"
-          value={eno}
-          onChange={(e) => setEno(e.target.value)}
-          onKeyDown={handleKeyDown}
-          placeholder=" 사번을 입력하세요."
-        />
-        <InputField
-          type="password"
-          value={password}
-          autoComplete="off"
-          onChange={(e) => setPassword(e.target.value)}
-          onKeyDown={handleKeyDown}
-          placeholder=" 비밀번호를 입력하세요."
-        />
-        <Button ref={buttonRef} onClick={handleSubmit} label="로그인" />
-        <LinkText onClick={() => navigate("/Login/PasswordFind")}>비밀번호를 잊으셨나요?</LinkText>
+        {/* ✅ form으로 묶어서 Enter 자동 처리 */}
+        <form
+          style={{ display: "flex", flexDirection: "column", gap: "5px", width: "100%" }}
+          onSubmit={handleSubmit}
+        >
+          <InputField
+            type="text"
+            value={eno}
+            onChange={(e) => setEno(e.target.value)}
+            placeholder=" 사번을 입력하세요."
+          />
+          <InputField
+            type="password"
+            value={password}
+            autoComplete="off"
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder=" 비밀번호를 입력하세요."
+          />
+          <Button ref={buttonRef} type="submit" label="로그인" />
+        </form>
+        <LinkText onClick={() => navigate("/Login/PasswordFind")}>
+          비밀번호를 잊으셨나요?
+        </LinkText>
       </Box>
     </Container>
   );
-
-
 }
 export default Login;
