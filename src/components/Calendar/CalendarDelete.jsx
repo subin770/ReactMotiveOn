@@ -1,61 +1,39 @@
-// import React from "react";
-// import { useNavigate, useParams } from "react-router-dom";
-// import ConfirmModal from "../common/ConfirmModal";
-// import { useCalendarStore } from "../../store/calendarStore";
-
-// const CalendarDelete = () => {
-//   const { id } = useParams();
-//   const deleteEvent = useCalendarStore((state) => state.deleteEvent);
-//   const navigate = useNavigate();
-
-//   const handleDelete = () => {
-//     deleteEvent(Number(id));
-//     navigate("/calendar");
-//   };
-
-//   return (
-//     <ConfirmModal
-//       isOpen={true}
-//       onClose={() => navigate(-1)}
-//       title="일정을 삭제하시겠습니까?"
-//       confirmText="확인"
-//       cancelText="취소"
-//       onConfirm={handleDelete}
-//     />
-//   );
-// };
-
-// export default CalendarDelete;
-
-
 // src/components/calendar/CalendarDelete.jsx
 import React from "react";
-import BottomSheetModal from "../common/BottomSheetModal";
+import ConfirmModal from "../common/ConfirmModal";
 import { useNavigate } from "react-router-dom";
+import { deleteCalendar } from "../motiveOn/api"; // ✅ 삭제 API (예시)
 
-const CalendarDelete = ({ eventId = 1, onDelete }) => {
+const CalendarDelete = ({ isOpen, onClose, event }) => {
   const navigate = useNavigate();
 
-  const handleConfirm = () => {
-    if (onDelete) onDelete(eventId); // 상위에서 전달된 삭제 로직 실행
-    alert(`${eventId}번 일정이 삭제되었습니다.`);
-    navigate("/calendarPage"); // 삭제 후 메인으로 이동
-  };
+  const handleConfirmDelete = async () => {
+    try {
+      // ✅ 실제 API 연동
+      const res = await deleteCalendar(event.ccode);
 
-  const handleCancel = () => {
-    navigate(-1); // 이전 페이지로 돌아가기
+      if (res.status === 200 && res.data === "success") {
+        alert("삭제되었습니다.");
+        onClose(); // 모달 닫기
+        navigate("/calendarPage"); // 일정 목록 페이지로 이동
+      } else {
+        alert("삭제 실패");
+      }
+    } catch (err) {
+      console.error("삭제 오류:", err);
+      alert("서버 오류 발생");
+    }
   };
 
   return (
-    <BottomSheetModal
-      isOpen={true} // 항상 열려있도록 (테스트용)
+    <ConfirmModal
+      isOpen={isOpen}
       title="일정 삭제"
-      message="정말 삭제하시겠습니까?"
-      onConfirm={handleConfirm}
-      onCancel={handleCancel}
+      message="정말 이 일정을 삭제하시겠습니까?"
+      onConfirm={handleConfirmDelete}
+      onCancel={onClose}
     />
   );
 };
 
 export default CalendarDelete;
-

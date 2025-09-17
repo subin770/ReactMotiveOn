@@ -27,5 +27,10 @@ export function modifyCalendar(calendar) {
 
 
 // ✅ 일정 삭제
-export function deleteCalendar(calendar) {
-  return axios.post("/api/calendar/delete", calendar)};
+// api.js
+export function deleteCalendar(ccode) {
+  const loginUser = JSON.parse(sessionStorage.getItem("user-storage"));
+  const eno = loginUser?.state?.user?.eno;
+
+  return axios.post("/api/calendar/delete", { ccode, eno });
+}
