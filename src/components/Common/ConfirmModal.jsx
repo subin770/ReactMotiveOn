@@ -38,7 +38,7 @@ const ConfirmModal = ({
       <div
         style={{
           background: "#fff",
-          borderRadius: "10px",
+          borderRadius: "13px",
           width: "90%",
           maxWidth: "400px",
           maxHeight: "90%",

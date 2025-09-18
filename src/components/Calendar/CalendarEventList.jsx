@@ -1,9 +1,8 @@
-// src/components/calendar/CalendarEventList.jsx
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { IconPlus } from "../calendar/icons";
-import ConfirmModal from "../common/ConfirmModal";
-import { deleteCalendar } from "../motiveOn/api"; // ✅ 삭제 API import
+import CalendarDetailModal from "../common/CalendarDetailModal";
+import { deleteCalendar } from "../motiveOn/api";
 
 const CalendarEventList = ({ events, selectedDate }) => {
   const navigate = useNavigate();
@@ -27,27 +26,40 @@ const CalendarEventList = ({ events, selectedDate }) => {
   }
 
   // 필터링된 이벤트
-  const filteredEvents = events.filter(
-    (event) => isSameDay(selectedDate, event.sdate, event.edate)
+  const filteredEvents = events.filter((event) =>
+    isSameDay(selectedDate, event.sdate, event.edate)
   );
 
-  // ✅ 삭제 확정 핸들러 (API 연동)
+  // 삭제 확정 핸들러 (API 연동)
   const handleDeleteConfirm = async () => {
-  try {
-    const res = await deleteCalendar(selectedEvent.ccode);
-    if (res.status === 200 && res.data === "success") {
-      alert("삭제되었습니다.");
-      setDeleteConfirmOpen(false);
-      setSelectedEvent(null);
-    } else {
-      alert("삭제 실패");
+    try {
+      const res = await deleteCalendar(selectedEvent.ccode);
+      if (res.status === 200 && res.data === "success") {
+        alert("삭제되었습니다.");
+        setDeleteConfirmOpen(false);
+        setSelectedEvent(null);
+      } else {
+        alert("삭제 실패");
+      }
+    } catch (err) {
+      console.error("삭제 오류:", err);
+      alert("서버 오류 발생");
     }
-  } catch (err) {
-    console.error("삭제 오류:", err);
-    alert("서버 오류 발생");
-  }
-};
+  };
 
+  // 분류 라벨 변환 함수
+  const getCategoryLabel = (catecode) => {
+    switch (catecode) {
+      case "C":
+        return "회사 일정";
+      case "D":
+        return "부서 일정";
+      case "P":
+        return "개인 일정";
+      default:
+        return "미지정";
+    }
+  };
 
   return (
     <div
@@ -105,7 +117,7 @@ const CalendarEventList = ({ events, selectedDate }) => {
                 borderBottom: "1px solid #eee",
                 cursor: "pointer",
               }}
-              onClick={() => setSelectedEvent(event)} // ✅ 상세 모달 열기
+              onClick={() => setSelectedEvent(event)} // 상세 모달 열기
             >
               {/* 아이콘(색 박스) */}
               <div
@@ -154,68 +166,90 @@ const CalendarEventList = ({ events, selectedDate }) => {
         <IconPlus />
       </button>
 
-      {/* ✅ 상세 모달 */}
-      <ConfirmModal isOpen={!!selectedEvent} onCancel={() => setSelectedEvent(null)}>
-        {selectedEvent && (
-          <div style={{ textAlign: "left" }}>
-            <h3 style={{ marginBottom: "16px", fontSize: "16px" }}>일정 상세</h3>
-            <hr style={{ marginBottom: "16px" }} />
+      {/* 상세 모달 */}
+      {selectedEvent && (
+        <CalendarDetailModal
+          isOpen={!!selectedEvent}
+          event={{
+            title: selectedEvent.title,
+            category: getCategoryLabel(selectedEvent.catecode),
+            date: `${selectedEvent.sdate} ~ ${selectedEvent.edate}`,
+            content: selectedEvent.content || "내용 없음",
+          }}
+          onModify={() => {
+            setSelectedEvent(null);
+            navigate("/calendar/CalendarEdit", {
+              state: { event: selectedEvent },
+            });
+          }}
+          onDelete={() => setDeleteConfirmOpen(true)} // 삭제 확인 모달 열기
+          onClose={() => setSelectedEvent(null)}
+        />
+      )}
 
-            <div style={{ fontSize: "14px", marginBottom: "10px" }}>
-              <strong>제목 :</strong> {selectedEvent.title}
-            </div>
-            <div style={{ fontSize: "14px", marginBottom: "10px" }}>
-              <strong>분류 :</strong>{" "}
-              {selectedEvent.catecode === "C"
-                ? "회사 일정"
-                : selectedEvent.catecode === "D"
-                ? "부서 일정"
-                : selectedEvent.catecode === "P"
-                ? "개인 일정"
-                : "미지정"}
-            </div>
-            <div style={{ fontSize: "14px", marginBottom: "10px" }}>
-              <strong>일시 :</strong> {selectedEvent.sdate} ~ {selectedEvent.edate}
-            </div>
-            <div style={{ fontSize: "14px", marginBottom: "10px" }}>
-              <strong>내용 :</strong> {selectedEvent.content || "내용 없음"}
-            </div>
-
-            {/* 버튼 */}
-            <div
+      {/* 삭제 확인 모달 (직접 구현) */}
+      {deleteConfirmOpen && (
+        <div
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "100%",
+            backgroundColor: "rgba(0,0,0,0.4)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            zIndex: 10000,
+          }}
+          onClick={() => setDeleteConfirmOpen(false)}
+        >
+          <div
+            style={{
+              background: "#fff",
+              borderRadius: "12px",
+              width: "300px",
+              padding: "24px 20px",
+              textAlign: "center",
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <p
               style={{
-                marginTop: "20px",
-                display: "flex",
-                justifyContent: "flex-end",
-                gap: "10px",
+                fontSize: "16px",
+                fontWeight: "600",
+                color: "#52586B",
+                marginBottom: "24px",
               }}
             >
+              정말 삭제하시겠습니까?
+            </p>
+            <div style={{ display: "flex", justifyContent: "center", gap: "10px" }}>
               <button
-                onClick={() => {
-                  setSelectedEvent(null);
-                  navigate("/calendar/CalendarEdit", {
-                    state: { event: selectedEvent },
-                  });
-                }}
+                type="button"
+                onClick={() => setDeleteConfirmOpen(false)}
                 style={{
-                  padding: "8px 16px",
+                  background: "#999",
+                  color: "#fff",
                   border: "none",
                   borderRadius: "6px",
-                  background: "#52586B",
-                  color: "#fff",
+                  padding: "8px 20px",
+                  fontSize: "14px",
                   cursor: "pointer",
                 }}
               >
-                수정
+                취소
               </button>
               <button
-                onClick={() => setDeleteConfirmOpen(true)} // ✅ 삭제 확인 모달 열기
+                type="button"
+                onClick={handleDeleteConfirm}
                 style={{
-                  padding: "8px 16px",
+                  background: "#e53935",
+                  color: "#fff",
                   border: "none",
                   borderRadius: "6px",
-                  background: "#ef5350",
-                  color: "#fff",
+                  padding: "8px 20px",
+                  fontSize: "14px",
                   cursor: "pointer",
                 }}
               >
@@ -223,17 +257,8 @@ const CalendarEventList = ({ events, selectedDate }) => {
               </button>
             </div>
           </div>
-        )}
-      </ConfirmModal>
-
-      {/* ✅ 삭제 확인 모달 */}
-      <ConfirmModal
-        isOpen={deleteConfirmOpen}
-        title="일정 삭제"
-        message="정말 삭제하시겠습니까?"
-        onConfirm={handleDeleteConfirm}
-        onCancel={() => setDeleteConfirmOpen(false)}
-      />
+        </div>
+      )}
     </div>
   );
 };
