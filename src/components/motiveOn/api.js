@@ -79,11 +79,11 @@ export function modifyWork(workData) {
 }
 
 
-// 업무 삭제
-export function deleteWork(wcode) {
-  const eno = getEno();
-  return axios.post(`/api/work/delete`, { wcode, eno });
-}
+// 업무 삭제 API
+export const deleteWork = (wcode) => {
+  return axios.post(`/api/work/delete?wcode=${wcode}`);
+};
+
 
 // 업무 상태 변경
 export function updateWorkStatus(wcode, status) {
