@@ -12,37 +12,8 @@ class CalendarPage extends Component {
 
   touchStartX = 0;
 
-  // 달력 타이틀(YYYY/MM) 업데이트
-  handleDatesSet = (info) => {
-    const year = info.view.currentStart.getFullYear();
-    const month = String(info.view.currentStart.getMonth() + 1).padStart(2, "0");
-    this.setState({ currentTitle: `${year}/${month}` });
-
-    // ✅ 오늘 버튼 눌렀을 때도 CalendarEventList 갱신
-    if (this.props.setSelectedDate) {
-      this.props.setSelectedDate(new Date());
-    }
-  };
-
-  // 스와이프 시작
-  handleTouchStart = (e) => {
-    this.touchStartX = e.changedTouches[0].clientX;
-  };
-
-  // 스와이프 종료 → 달력 이동
-  handleTouchEnd = (e) => {
-    const diff = e.changedTouches[0].clientX - this.touchStartX;
-    const calendarApi = this.calendarRef.getApi();
-
-    if (diff > 50) {
-      calendarApi.prev(); // 오른쪽 스와이프
-    } else if (diff < -50) {
-      calendarApi.next(); // 왼쪽 스와이프
-    }
-  };
-
-  // 일정 불러오기
-  async componentDidMount() {
+  // ✅ 일정 불러오기 함수 분리
+  fetchCalendarList = async () => {
     try {
       const res = await getCalendarList(); // api.js에서 로그인 사용자 eno 자동 추출
       const data = res.data.calendarList || [];
@@ -62,7 +33,7 @@ class CalendarPage extends Component {
 
         return {
           id: event.ccode,
-          title: `${event.title} `,
+          title: `${event.title}`,
           start: startDate.toLocaleDateString("sv-SE"),
           end: endDate.toLocaleDateString("sv-SE"),
           color,
@@ -74,7 +45,42 @@ class CalendarPage extends Component {
     } catch (err) {
       console.error("일정 불러오기 실패:", err);
     }
-  }
+  };
+
+  // 달력 타이틀(YYYY/MM) 업데이트
+  handleDatesSet = (info) => {
+    const year = info.view.currentStart.getFullYear();
+    const month = String(info.view.currentStart.getMonth() + 1).padStart(2, "0");
+    this.setState({ currentTitle: `${year}/${month}` });
+
+    if (this.props.setSelectedDate) {
+      this.props.setSelectedDate(new Date());
+    }
+  };
+
+  handleTouchStart = (e) => {
+    this.touchStartX = e.changedTouches[0].clientX;
+  };
+
+  handleTouchEnd = (e) => {
+    const diff = e.changedTouches[0].clientX - this.touchStartX;
+    const calendarApi = this.calendarRef.getApi();
+
+    if (diff > 50) {
+      calendarApi.prev();
+    } else if (diff < -50) {
+      calendarApi.next();
+    }
+  };
+async componentDidMount() {
+  await this.fetchCalendarList();
+  window.addEventListener("calendar:refresh", () => this.fetchCalendarList());
+}
+
+componentWillUnmount() {
+  // 컴포넌트가 언마운트될 때 이벤트 해제도 꼭 해줘야 함
+  window.removeEventListener("calendar:refresh", () => this.fetchCalendarList());
+}
 
   render() {
     return (
@@ -89,7 +95,7 @@ class CalendarPage extends Component {
         onTouchStart={this.handleTouchStart}
         onTouchEnd={this.handleTouchEnd}
       >
-        {/* 스타일 */}
+        {/* 스타일 (유지) */}
         <style>
           {`
             .fc {
@@ -196,21 +202,16 @@ class CalendarPage extends Component {
             height="100%"
             contentHeight="100%"
             events={this.state.events}
-            
-            // ✅ 이벤트 클릭 → 선택된 날짜 전달
             eventClick={(arg) => {
               if (this.props.setSelectedDate && arg.event?.start) {
                 this.props.setSelectedDate(new Date(arg.event.start));
               }
             }}
-            
-            // ✅ 날짜 클릭 → 선택된 날짜 전달
             dateClick={(info) => {
               if (this.props.setSelectedDate) {
                 this.props.setSelectedDate(new Date(info.dateStr));
               }
             }}
-
             eventContent={(arg) => {
               const color = arg.event.backgroundColor || "#9bc59c";
               return {
@@ -241,7 +242,7 @@ class CalendarPage extends Component {
           />
         </div>
 
-        {/* 이벤트 리스트 영역 (빈 상태 유지) */}
+        {/* 이벤트 리스트 영역 */}
         <div
           style={{
             flex: 1,

@@ -1,45 +1,26 @@
-// src/components/Work/WorkRegist.jsx
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import Header from "../common/Header";
 import InputField from "../common/InputField";
 import Button from "../common/Button";
 import DatePicker from "../common/DatePicker";
 import OrgTree from "../common/OrgTree";
-import axios from "axios";
 import { useNavigate, useLocation } from "react-router-dom";
-import { registWork } from "../motiveOn/api"; // ✅ api.js 함수 불러오기
+import { registWork } from "../motiveOn/api";
+import { useUserStore } from "../../store/userStore";   // ✅ 로그인 사용자 스토어
 
 export default function WorkRegist() {
   const navigate = useNavigate();
   const location = useLocation();
 
+  const { user, isLoggedIn } = useUserStore(); // ✅ 로그인 사용자 정보 가져오기
+
   const [showOrgTree, setShowOrgTree] = useState(false);
   const [title, setTitle] = useState("");
-  const [requester, setRequester] = useState("");       // 요청자 이름
-  const [requesterEno, setRequesterEno] = useState(""); // 요청자 eno
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [content, setContent] = useState("");
   const [assignees, setAssignees] = useState([]);
   const [alertMessage, setAlertMessage] = useState("");
-
-  // ✅ 로그인 사용자 정보 가져오기 (백엔드 세션 기반)
-  useEffect(() => {
-    axios.get("/api/work/login")
-      .then(res => {
-        setRequester(res.data.name);
-        setRequesterEno(res.data.eno);
-      })
-      .catch(err => {
-        console.error("로그인 사용자 조회 실패:", err);
-        // fallback: sessionStorage에서 가져오기
-        const stored = JSON.parse(sessionStorage.getItem("user-storage"));
-        if (stored?.state?.user) {
-          setRequester(stored.state.user.name);
-          setRequesterEno(stored.state.user.eno);
-        }
-      });
-  }, []);
 
   // 담당자 선택
   const handleSelectAssignee = (user) => {
@@ -54,8 +35,8 @@ export default function WorkRegist() {
 
   // 저장 버튼
   const handleSave = () => {
-    if (!requesterEno) {
-      alert("로그인 정보가 없습니다. 잠시만 기다려주세요.");
+    if (!user?.eno) {
+      alert("로그인 정보가 없습니다. 다시 로그인 해주세요.");
       return;
     }
 
@@ -132,6 +113,7 @@ export default function WorkRegist() {
     lineHeight: "40px",
     width: "100%",
     outline: "none",
+    display: "inline-block",
   };
   const assigneeInputStyle = {
     ...commonInputStyle,
@@ -157,15 +139,13 @@ export default function WorkRegist() {
           </div>
         </div>
 
-        {/* 요청자 */}
+        {/* 요청자 (이름 + 부서) */}
         <div style={fieldRowStyle}>
           <div style={labelStyle}>요청자</div>
           <div style={inputWrapperStyle}>
-            <InputField
-              value={requester}
-              readOnly
-              style={commonInputStyle}
-            />
+            <span style={commonInputStyle}>
+              {user ? `${user.name}` : ""}
+            </span>
           </div>
         </div>
 

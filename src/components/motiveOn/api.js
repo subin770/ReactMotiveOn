@@ -40,9 +40,8 @@ export function deleteCalendar(ccode) {
 
 function getEno() {
   const loginUser = JSON.parse(sessionStorage.getItem("user-storage"));
-  return loginUser?.state?.user;
+  return loginUser?.state?.user?.eno;   // ✅ eno만 반환
 }
-
 
 // 요청한 업무 리스트
 export function getRequestedWork() {
@@ -114,3 +113,13 @@ export function requestDelegate(wcode, delegateEno) {
   const eno = getEno();
   return axios.post(`/api/work/requestDelegate?wcode=${wcode}&eno=${delegateEno}&requesterEno=${eno}`);
 }
+
+
+
+
+// ---------------------------------------------------------------------------------------------//
+
+
+export const getApprovalViewerList = (eno) => {
+  return axios.get(`/api/approval/viewerList?eno=${eno}`);
+};

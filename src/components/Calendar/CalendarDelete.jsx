@@ -15,14 +15,15 @@ const CalendarDetail = ({ event, onClose }) => {
       if (res.status === 200 && res.data === "success") {
         alert("삭제되었습니다.");
         setDeleteOpen(false);
-        onClose();
+        if (res.status === 200 && res.data === "success") {
+          console.log("✅ 이벤트 발행");
+          window.dispatchEvent(new Event("calendar:refresh"));
+          onClose();
+}
 
 
-        if (typeof window.refreshCalendarEvents === "function") {
-          window.refreshCalendarEvents();
-        }
 
-        navigate("/calendarPage");
+        
       } else {
         alert("삭제 실패");
       }

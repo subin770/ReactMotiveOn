@@ -16,30 +16,44 @@ const CalendarWrapper = () => {
     return `${year}.${month}.${day}`;
   };
 
+  // ✅ 공통 fetch 함수
+  const fetchEvents = async () => {
+    try {
+      const res = await getCalendarList();
+      const rawEvents = res.data.calendarList || [];
+
+      const mappedEvents = rawEvents.map((event) => {
+        let color = "#9bc59c";
+        if (event.catecode === "C") color = "#f76258"; // 회사
+        else if (event.catecode === "D") color = "#71b2e7"; // 부서
+        else if (event.catecode === "P") color = "#94c296"; // 개인
+
+        return {
+          ...event,
+          sdate: formatDate(event.sdate),
+          edate: formatDate(event.edate),
+          color,
+        };
+      });
+
+      setEvents(mappedEvents);
+    } catch (err) {
+      console.error("일정 불러오기 실패:", err);
+    }
+  };
+
   useEffect(() => {
-    getCalendarList()
-      .then((res) => {
-        const rawEvents = res.data.calendarList || [];
+    // 최초 로드
+    fetchEvents();
 
-        // 🔹 DB 원본 이벤트 → 가공
-        const mappedEvents = rawEvents.map((event) => {
-          // catecode 색상 매핑
-          let color = "#9bc59c";
-          if (event.catecode === "C") color = "#f76258"; // 회사
-          else if (event.catecode === "D") color = "#71b2e7"; // 부서
-          else if (event.catecode === "P") color = "#94c296"; // 개인
+    // ✅ 삭제 후 refresh 이벤트 받을 수 있도록 listener 추가
+    const refreshHandler = () => fetchEvents();
+    window.addEventListener("calendar:refresh", refreshHandler);
 
-          return {
-            ...event,
-            sdate: formatDate(event.sdate),
-            edate: formatDate(event.edate),
-            color,
-          };
-        });
-
-        setEvents(mappedEvents);
-      })
-      .catch((err) => console.error("일정 불러오기 실패:", err));
+    // cleanup
+    return () => {
+      window.removeEventListener("calendar:refresh", refreshHandler);
+    };
   }, []);
 
   return (
