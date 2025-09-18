@@ -1,12 +1,69 @@
 // src/components/Home/HomePage.jsx
-import React, { useState } from "react";   // ✅ useState 추가
+import React, { useState, useEffect } from "react";   // ✅ useEffect 추가
 import StatusCard from "../common/StatusCard";
 import { Link } from "react-router-dom";
+import { getCalendarList } from "../motiveOn/api";   // ✅ 일정 API 불러오기
 
 const HomePage = () => {
-
   const [activeTab, setActiveTab] = useState("긴급");
+  const [todayEvents, setTodayEvents] = useState([]);
 
+  // 오늘 날짜 (YYYY.MM.DD)
+  const today = new Date();
+  const formatDate = (date) => {
+    const y = date.getFullYear();
+    const m = String(date.getMonth() + 1).padStart(2, "0");
+    const d = String(date.getDate()).padStart(2, "0");
+    return `${y}.${m}.${d}`;
+  };
+  const todayStr = formatDate(today);
+
+  // ✅ 시간 포맷 (밀리초 → YYYY.MM.DD HH:mm)
+  const formatDateTime = (val) => {
+    if (!val) return "";
+    const d = new Date(val);
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, "0");
+    const da = String(d.getDate()).padStart(2, "0");
+    const h = String(d.getHours()).padStart(2, "0");
+    const min = String(d.getMinutes()).padStart(2, "0");
+    return `${y}.${m}.${da} ${h}:${min}`;
+  };
+
+  // ✅ catecode 색상 매핑
+  const getCategoryColor = (catecode) => {
+    switch (catecode) {
+      case "C":
+        return "#f76258"; // 회사
+      case "D":
+        return "#71b2e7"; // 부서
+      case "P":
+        return "#94c296"; // 개인
+      default:
+        return "#9bc59c"; // 기본
+    }
+  };
+
+  useEffect(() => {
+    getCalendarList()
+      .then((res) => {
+        const list = res.data.calendarList || [];
+
+        // 오늘 날짜 일정 필터링
+        const events = list.filter((event) => {
+          const sdate = formatDate(new Date(event.sdate));
+          const edate = formatDate(new Date(event.edate));
+          return todayStr >= sdate && todayStr <= edate;
+        });
+
+        setTodayEvents(events);
+      })
+      .catch((err) => console.error("홈 일정 불러오기 실패:", err));
+  }, []);
+
+  // 요일
+  const weekdays = ["일", "월", "화", "수", "목", "금", "토"];
+  const weekdayStr = weekdays[today.getDay()];
 
   const approvalData = {
     긴급: [
@@ -18,7 +75,6 @@ const HomePage = () => {
       "긴급 결재가 필요한 문서 5",
       "긴급 결재가 필요한 문서 6",
       "긴급 결재 문서입니다.",
- 
     ],
     반려: [
       "반려된 결재 문서입니다.",
@@ -56,7 +112,6 @@ const HomePage = () => {
           padding: "16px",
           background: "#fff",
           marginBottom: "8px",
-          
         }}
       >
         <div
@@ -73,40 +128,56 @@ const HomePage = () => {
             바로가기
           </Link>
         </div>
-        <Link to="/calendar/detail/1" style={{ textDecoration: "none", color: "inherit" }}>
-       {/* <Link to={`/calendar/detail/${schedule.id}`} style={{ textDecoration: "none", color: "inherit" }}></Link>*/}
-        
-        
-  <div
-    style={{
-      background: "#f9f9f9",
-      borderRadius: "6px",
-      padding: "16px",
-      cursor: "pointer",   
-    }}
-  >
-    <div style={{ fontWeight: "600", marginBottom: "8px", fontSize: "13px" }}>
-      8일 (월)
-    </div>
-    <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-      <div
-        style={{
-          width: "12px",
-          height: "20px",
-          backgroundColor: "#4caf50",
-          borderRadius: "3px",
-        }}
-      ></div>
-      <div>
-        <div style={{ fontWeight: "500", fontSize: "13px" }}>테스트</div>
-        <div style={{ fontSize: "12px", color: "#8d8c8c" }}>
-          2025/9/26 14:00
-        </div>
-      </div>
-    </div>
-  </div>
-</Link>
 
+        <div
+          style={{
+            background: "#f9f9f9",
+            borderRadius: "6px",
+            padding: "16px",
+          }}
+        >
+          <div
+            style={{ fontWeight: "600", marginBottom: "8px", fontSize: "13px" }}
+          >
+            {today.getDate()}일 ({weekdayStr})
+          </div>
+
+          {todayEvents.length === 0 ? (
+            <p style={{ fontSize: "13px", color: "#888" }}>
+              해당 날짜에 일정이 없습니다.
+            </p>
+          ) : (
+            todayEvents.map((event, idx) => (
+              <div
+                key={idx}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "12px",
+                  marginBottom: "8px",
+                }}
+              >
+                {/* 🔹 catecode 색상바 */}
+                <div
+                  style={{
+                    width: "12px",
+                    height: "20px",
+                    backgroundColor: getCategoryColor(event.catecode),
+                    borderRadius: "3px",
+                  }}
+                ></div>
+                <div>
+                  <div style={{ fontWeight: "500", fontSize: "13px" }}>
+                    {event.title}
+                  </div>
+                  <div style={{ fontSize: "12px", color: "#8d8c8c" }}>
+                    {formatDateTime(event.sdate)} ~ {formatDateTime(event.edate)}
+                  </div>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
       </section>
 
       {/* 업무 */}
@@ -155,7 +226,6 @@ const HomePage = () => {
             }}
           >
             <span>금주 마감 업무</span>
-            {/* <span style={{ fontSize: "12px", color: "#9b9b9b" }}>더보기</span> */}
           </div>
 
           {/* 카드 grid */}
@@ -183,7 +253,7 @@ const HomePage = () => {
           background: "#fff",
           display: "flex",
           flexDirection: "column",
-          minHeight: "400px", // 카드 최소 높이 지정
+          minHeight: "400px",
         }}
       >
         {/* 상단 타이틀 */}
@@ -203,12 +273,11 @@ const HomePage = () => {
           </Link>
         </div>
 
-        {/* 탭 + 리스트를 하나의 박스로 */}
+        {/* 탭 + 리스트 */}
         <div
           style={{
             background: "#f9f9f9",
             borderRadius: "6px",
-          
             minHeight: "280px",
           }}
         >
@@ -222,7 +291,7 @@ const HomePage = () => {
             {["긴급", "반려", "보류", "대기"].map((tab) => (
               <div
                 key={tab}
-                onClick={() => setActiveTab(tab)} 
+                onClick={() => setActiveTab(tab)}
                 style={{
                   flex: 1,
                   textAlign: "center",
@@ -245,7 +314,7 @@ const HomePage = () => {
           {/* 리스트 */}
           <div
             style={{
-               height: "220px",  
+              height: "220px",
               overflowY: "auto",
               padding: "12px",
               background: "#f9f9f9",
@@ -253,17 +322,21 @@ const HomePage = () => {
               borderBottomRightRadius: "8px",
             }}
           >
-             {approvalData[activeTab].map((item, idx) => (
-                <li key={idx} style={{
-                fontSize: "14px",
-                color: "#444",
-                lineHeight: "3",
-                listStyleType: "disc",
-                paddingLeft: "15px",
-                margin: 0,
-              }}>{item}</li>
-              ))}
-        
+            {approvalData[activeTab].map((item, idx) => (
+              <li
+                key={idx}
+                style={{
+                  fontSize: "14px",
+                  color: "#444",
+                  lineHeight: "3",
+                  listStyleType: "disc",
+                  paddingLeft: "15px",
+                  margin: 0,
+                }}
+              >
+                {item}
+              </li>
+            ))}
           </div>
         </div>
       </section>

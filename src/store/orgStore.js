@@ -10,7 +10,7 @@ const useOrgStore = create((set) => ({
 
   fetchOrgData: async () => {
     try {
-      const res = await api.get("/org/tree"); // ✅ 자동으로 /motiveOn/api/org/tree 로 변환
+      const res = await api.get("/org/tree");
       set({ orgData: res.data.list || [] });
     } catch (err) {
       console.error("조직도 데이터 불러오기 실패:", err);

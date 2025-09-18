@@ -37,7 +37,7 @@ export function deleteCalendar(ccode) {
 
 
 // ---------------------------------------------------------------------------//
-
+// 로그인 사용자 eno 가져오기
 function getEno() {
   const loginUser = JSON.parse(sessionStorage.getItem("user-storage"));
   return loginUser?.state?.user?.eno;   // ✅ eno만 반환
@@ -72,10 +72,23 @@ export function registWork(workData, ownerEno) {
   return axios.post(`/api/work/regist?requesterEno=${eno}${query}`, workData);
 }
 
+// ✅ 업무 수정 (Calendar modify와 동일 스타일)
+export function modifyWork(workData) {
+  const eno = getEno();
+  return axios.post(`/api/work/modify?Eno=${eno}`, workData);
+}
+
+
+// 업무 삭제
+export function deleteWork(wcode) {
+  const eno = getEno();
+  return axios.post(`/api/work/delete`, { wcode, eno });
+}
 
 // 업무 상태 변경
 export function updateWorkStatus(wcode, status) {
-  return axios.post(`/api/work/updateStatus?wcode=${wcode}&status=${status}`);
+  const eno = getEno();
+  return axios.post(`/api/work/updateStatus?wcode=${wcode}&status=${status}&eno=${eno}`);
 }
 
 // 승인
@@ -92,12 +105,8 @@ export function rejectWork(wcode, reason) {
 
 // 이의 제기
 export function objectionWork(wcode, reason) {
-  return axios.post(`/api/work/objection?wcode=${wcode}&reason=${reason}`);
-}
-
-// 삭제
-export function deleteWork(wcode) {
-  return axios.post(`/api/work/delete?wcode=${wcode}`);
+  const eno = getEno();
+  return axios.post(`/api/work/objection?wcode=${wcode}&reason=${reason}&eno=${eno}`);
 }
 
 // 협업 요청
