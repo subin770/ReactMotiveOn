@@ -33,7 +33,6 @@ import CalendarDetail from "./components/Calendar/CalendarDetail";
 import CalendarEdit from "./components/Calendar/CalendarEdit";   // ✅ 일정 수정 추가
 
 
-
 // 전자결재
 import ApprovalPage from "./components/Approval/ApprovalPage";
 import ReferenceApprovalPage from "./components/Approval/ReferenceApprovalPage";
@@ -43,8 +42,6 @@ import CompleteApprovalPage from "./components/Approval/CompleteApprovalPage";
 import ApprovalDetailPage from "./components/Approval/ApprovalDetailPage";
 import FormPickerPage from "./components/Approval/FormPickerPage";
 import ApprovalComposePage from "./components/Approval/ApprovalComposePage";
-
-
 
 
 
@@ -93,11 +90,11 @@ function App() {
           <Route path="/work/reqlist" element={<RequestedWorkPage />} />
           <Route path="/work/detail/:wcode" element={<WorkDetail />} />
           <Route path="/work/detailedit/:wcode" element={<WorkDetailEdit />} />
-<Route path="/work/reqlist" element={<RequestedWorkPage />} />
+          <Route path="/work/reqlist" element={<RequestedWorkPage />} />
           <Route path="/work/regist" element={<WorkRegist />} />
           <Route path="/common/OrgTree" element={<OrgTree />} />
 
-          {/* 전자결재 (중첩) */}
+        {/* 전자결재 (중첩) */}
           <Route path="/approval" element={<ApprovalPage />} />
           <Route path="/approval/viewerList" element={<ReferenceApprovalPage />} />
           <Route path="/approval/draftList" element={<DraftApprovalPage />} />
@@ -105,6 +102,8 @@ function App() {
           <Route path="/approval/completeList" element={<CompleteApprovalPage />} />
           <Route path="/approval/detail/:signNo" element={<ApprovalDetailPage headerOffset={56} />} />
           <Route path="/approval/form-picker" element={<FormPickerPage />} />
+          <Route path="/approval/compose" element={<ApprovalComposePage />} />
+        
 
         </Route>
         {/* ===== 기본 경로 처리 (로그인으로 리디렉션) ===== */}
