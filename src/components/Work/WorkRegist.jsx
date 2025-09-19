@@ -3,16 +3,16 @@ import Header from "../common/Header";
 import InputField from "../common/InputField";
 import Button from "../common/Button";
 import DatePicker from "../common/DatePicker";
-import OrgTree from "../common/OrgTree";
+import OrgTree from "../common/OrgTree2";
 import { useNavigate, useLocation } from "react-router-dom";
 import { registWork } from "../motiveOn/api";
-import { useUserStore } from "../../store/userStore";   // ✅ 로그인 사용자 스토어
+import { useUserStore } from "../../store/userStore";   
 
 export default function WorkRegist() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const { user, isLoggedIn } = useUserStore(); // ✅ 로그인 사용자 정보 가져오기
+  const { user, isLoggedIn } = useUserStore(); 
 
   const [showOrgTree, setShowOrgTree] = useState(false);
   const [title, setTitle] = useState("");
@@ -23,13 +23,16 @@ export default function WorkRegist() {
   const [alertMessage, setAlertMessage] = useState("");
 
   // 담당자 선택
-  const handleSelectAssignee = (user) => {
+  const handleSelectAssignee = (selectedUser) => {
+    if (!selectedUser?.value) return; // 방어 코드
+
     setAssignees((prev) => {
-      if (prev.some((a) => a.value === user.value)) {
-        return prev.filter((a) => a.value !== user.value);
-      } else {
-        return [...prev, user];
+      // 이미 선택된 경우 → 제거
+      if (prev.some((a) => a.value === selectedUser.value)) {
+        return prev.filter((a) => a.value !== selectedUser.value);
       }
+      // 아니면 추가
+      return [...prev, selectedUser];
     });
   };
 
@@ -50,7 +53,8 @@ export default function WorkRegist() {
       return;
     }
 
-    const ownerEno = assignees[0].value; // 첫 번째 담당자 eno
+    // 다중 담당자 ENO 배열
+    const ownerEnos = assignees.map((a) => a.value);
 
     registWork(
       {
@@ -59,7 +63,7 @@ export default function WorkRegist() {
         wdate: startDate || null,
         wend: endDate || null,
       },
-      ownerEno
+      ownerEnos
     )
       .then(() => {
         alert("업무등록이 완료 되었습니다.");
@@ -139,7 +143,7 @@ export default function WorkRegist() {
           </div>
         </div>
 
-        {/* 요청자 (이름 + 부서) */}
+        {/* 요청자 */}
         <div style={fieldRowStyle}>
           <div style={labelStyle}>요청자</div>
           <div style={inputWrapperStyle}>

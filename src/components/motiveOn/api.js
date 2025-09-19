@@ -126,6 +126,19 @@ export function requestDelegate(wcode, delegateEno) {
 
 
 
+
+
+// ================== 조직도 ================== //
+
+export function getOrgTree() {
+  return axios.get("/api/org/tree");   // 👉 프록시 + 컨트롤러 매핑 일치
+}
+
+export function getOrgChildren(parent = "#") {
+  return axios.get("/api/org/children", { params: { parent } });
+}
+
+
 // ---------------------------------------------------------------------------------------------//
 
 
