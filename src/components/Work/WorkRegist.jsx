@@ -1,9 +1,10 @@
+// src/components/Work/WorkRegist.jsx
 import React, { useState } from "react";
 import Header from "../common/Header";
 import InputField from "../common/InputField";
 import Button from "../common/Button";
 import DatePicker from "../common/DatePicker";
-import OrgTree from "../common/OrgTree2";
+import OrgTree from "../common/OrgTree2"; // ✅ 조직도
 import { useNavigate, useLocation } from "react-router-dom";
 import { registWork } from "../motiveOn/api";
 import { useUserStore } from "../../store/userStore";   
@@ -22,21 +23,19 @@ export default function WorkRegist() {
   const [assignees, setAssignees] = useState([]);
   const [alertMessage, setAlertMessage] = useState("");
 
-  // 담당자 선택
+  // ✅ 담당자 선택
   const handleSelectAssignee = (selectedUser) => {
     if (!selectedUser?.value) return; // 방어 코드
 
     setAssignees((prev) => {
-      // 이미 선택된 경우 → 제거
       if (prev.some((a) => a.value === selectedUser.value)) {
         return prev.filter((a) => a.value !== selectedUser.value);
       }
-      // 아니면 추가
       return [...prev, selectedUser];
     });
   };
 
-  // 저장 버튼
+  // ✅ 저장 버튼
   const handleSave = () => {
     if (!user?.eno) {
       alert("로그인 정보가 없습니다. 다시 로그인 해주세요.");
@@ -53,7 +52,6 @@ export default function WorkRegist() {
       return;
     }
 
-    // 다중 담당자 ENO 배열
     const ownerEnos = assignees.map((a) => a.value);
 
     registWork(
@@ -67,7 +65,8 @@ export default function WorkRegist() {
     )
       .then(() => {
         alert("업무등록이 완료 되었습니다.");
-        navigate(-1);
+        // ✅ 요청한업무 리스트 페이지로 이동
+        navigate("/work/reqlist");
       })
       .catch((err) => {
         console.error(err);

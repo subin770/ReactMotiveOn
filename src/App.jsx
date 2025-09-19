@@ -93,7 +93,7 @@ function App() {
           <Route path="/work/reqlist" element={<RequestedWorkPage />} />
           <Route path="/work/detail/:wcode" element={<WorkDetail />} />
           <Route path="/work/detailedit/:wcode" element={<WorkDetailEdit />} />
-
+<Route path="/work/reqlist" element={<RequestedWorkPage />} />
           <Route path="/work/regist" element={<WorkRegist />} />
           <Route path="/common/OrgTree" element={<OrgTree />} />
 

@@ -11,7 +11,9 @@ export default function RequestedWorkPage() {
   const fetchRequested = async () => {
     try {
       const res = await getRequestedWork();
-      setWorkList(res.data.list || []);
+      // ✅ 응답 구조 유연하게 처리
+      const list = res.data?.list || res.data || [];
+      setWorkList(list);
     } catch (err) {
       console.error("요청한 업무 목록 가져오기 실패:", err);
     }

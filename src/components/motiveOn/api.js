@@ -64,13 +64,17 @@ export function getDepWorkList(dno) {
 export function getWorkDetail(wcode) {
   return axios.get(`/api/work/detail?wcode=${wcode}`);
 }
-
 // 업무 등록
-export function registWork(workData, ownerEno) {
+export function registWork(workData, ownerEnos = []) {
   const eno = getEno(); // 로그인 사용자 eno
-  const query = ownerEno ? `&ownerEno=${ownerEno}` : "";
-  return axios.post(`/api/work/regist?requesterEno=${eno}${query}`, workData);
+  return axios.post(`/api/work/regist`, workData, {
+    params: {
+      requesterEno: eno,
+      ownerEno: ownerEnos, // 👉 배열 그대로 넘기기
+    },
+  });
 }
+
 
 // ✅ 업무 수정 (Calendar modify와 동일 스타일)
 export function modifyWork(workData) {
