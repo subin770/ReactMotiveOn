@@ -2,7 +2,7 @@ import { create } from "zustand";
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "/api", // ✅ 프록시 엔트리포인트
+  baseURL: "/api", 
 });
 
 const useOrgStore = create((set) => ({

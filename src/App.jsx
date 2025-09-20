@@ -1,4 +1,3 @@
-//레이아웃 확인용 
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { createGlobalStyle } from 'styled-components';
 // ===== Common =====
@@ -30,7 +29,7 @@ import WorkRegist from './components/Work/WorkRegist';
 import CalendarPage from "./components/Calendar/CalendarPage";
 import CalendarRegist from './components/Calendar/CalendarRegist';
 import CalendarDetail from "./components/Calendar/CalendarDetail";
-import CalendarEdit from "./components/Calendar/CalendarEdit";   // ✅ 일정 수정 추가
+import CalendarEdit from "./components/Calendar/CalendarEdit";   
 
 
 // 전자결재
@@ -90,16 +89,15 @@ function App() {
           <Route path="/work/reqlist" element={<RequestedWorkPage />} />
           <Route path="/work/detail/:wcode" element={<WorkDetail />} />
           <Route path="/work/detailedit/:wcode" element={<WorkDetailEdit />} />
-          <Route path="/work/reqlist" element={<RequestedWorkPage />} />
           <Route path="/work/regist" element={<WorkRegist />} />
           <Route path="/common/OrgTree" element={<OrgTree />} />
 
-        {/* 전자결재 (중첩) */}
+         {/* 전자결재 (중첩) */}
           <Route path="/approval" element={<ApprovalPage />} />
           <Route path="/approval/viewerList" element={<ReferenceApprovalPage />} />
           <Route path="/approval/draftList" element={<DraftApprovalPage />} />
           <Route path="/approval/tempList" element={<TempApprovalPage />} />
-          <Route path="/approval/completeList" element={<CompleteApprovalPage />} />
+          <Route path="/approval/approvalList" element={<CompleteApprovalPage />} />
           <Route path="/approval/detail/:signNo" element={<ApprovalDetailPage headerOffset={56} />} />
           <Route path="/approval/form-picker" element={<FormPickerPage />} />
           <Route path="/approval/compose" element={<ApprovalComposePage />} />

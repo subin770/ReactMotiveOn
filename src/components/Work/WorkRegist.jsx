@@ -1,6 +1,5 @@
 // src/components/Work/WorkRegist.jsx
-import React, { useState, useRef } from "react";
-import Header from "../common/Header";
+import React, { useState } from "react";
 import InputField from "../common/InputField";
 import Button from "../common/Button";
 import DatePicker from "../common/DatePicker";
@@ -12,7 +11,6 @@ import { useUserStore } from "../../store/userStore";
 export default function WorkRegist() {
   const navigate = useNavigate();
   const location = useLocation();
-  const orgTreeRef = useRef(null); // ✅ OrgTree 참조
 
   const { user, isLoggedIn } = useUserStore(); 
 
@@ -22,11 +20,10 @@ export default function WorkRegist() {
   const [endDate, setEndDate] = useState("");
   const [content, setContent] = useState("");
   const [assignees, setAssignees] = useState([]);
-  const [alertMessage, setAlertMessage] = useState("");
 
-  // ✅ 담당자 선택 (확인 버튼에서 실행됨)
+  // ✅ 담당자 선택
   const handleSelectAssignee = (selectedUser) => {
-    if (!selectedUser?.value) return; // 방어 코드
+    if (!selectedUser?.value) return;
 
     setAssignees((prev) => {
       if (prev.some((a) => a.value === selectedUser.value)) {
@@ -53,8 +50,10 @@ export default function WorkRegist() {
       return;
     }
 
+    // 담당자 eno 배열
     const ownerEnos = assignees.map((a) => a.value);
 
+    // ✅ 등록 API 호출
     registWork(
       {
         wtitle: title,
@@ -66,8 +65,7 @@ export default function WorkRegist() {
     )
       .then(() => {
         alert("업무등록이 완료 되었습니다.");
-        // ✅ 요청한업무 리스트 페이지로 이동
-        navigate("/work/reqlist");
+        navigate("/work/reqlist"); // 요청한 업무 리스트로 이동
       })
       .catch((err) => {
         console.error(err);
@@ -227,23 +225,6 @@ export default function WorkRegist() {
         <Button label="저장" onClick={handleSave} variant="primary" />
       </div>
 
-      {/* 알림 메시지 */}
-      {alertMessage && (
-        <div
-          style={{
-            position: "fixed",
-            top: "20px",
-            right: "20px",
-            background: "#4caf50",
-            color: "#fff",
-            padding: "12px",
-            borderRadius: "6px",
-          }}
-        >
-          {alertMessage}
-        </div>
-      )}
-
       {/* OrgTree 모달 */}
       {showOrgTree && (
         <div
@@ -271,20 +252,11 @@ export default function WorkRegist() {
             }}
             onClick={(e) => e.stopPropagation()}
           >
-            {/* ✅ ref 연결 */}
-            <OrgTree ref={orgTreeRef} />
-            <Button
-              label="확인"
-              onClick={() => {
-                const selectedUser = orgTreeRef.current?.getSelectedUser();
-                if (selectedUser) {
-                  handleSelectAssignee(selectedUser);
-                  setShowOrgTree(false);
-                } else {
-                  alert("사원을 선택해주세요.");
-                }
-              }}
+            <OrgTree
+              onSelect={handleSelectAssignee}
+              selectedAssignees={assignees}
             />
+            <Button label="확인" onClick={() => setShowOrgTree(false)} />
           </div>
         </div>
       )}

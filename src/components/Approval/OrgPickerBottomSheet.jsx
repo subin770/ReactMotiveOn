@@ -2,8 +2,9 @@
 import React, { useEffect, useMemo, useState } from "react";
 import styled from "styled-components";
 import useOrgStore from "../../store/orgStore";
-import BottomSheetModal from "../common/BottomSheetModal"; // ✅ Common (대문자)
+import BottomSheetModal from "../Common/BottomSheetModal"; // 프로젝트 경로 그대로 사용
 import dropdownIcon from "../../assets/img/dropdown.png";
+
 /* ========= helpers ========= */
 const toEno = (x) => {
   const raw =
