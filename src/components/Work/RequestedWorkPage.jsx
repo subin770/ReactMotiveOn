@@ -9,11 +9,11 @@ export default function RequestedWorkPage() {
   const navigate = useNavigate();
   const [workList, setWorkList] = useState([]);
 
-  // 📌 업무 목록 조회 함수
+  //업무 목록 조회 함수
   const fetchRequested = async () => {
     try {
       const res = await getRequestedWork();
-      // ✅ 응답 구조 유연하게 처리
+      // 응답 구조 유연하게 처리
       const list = res.data?.list || res.data || [];
       setWorkList(list);
     } catch (err) {
@@ -22,12 +22,12 @@ export default function RequestedWorkPage() {
   };
 
 
-  // ✅ 최초 로딩 시 목록 불러오기
+  // 최초 로딩 시 목록 불러오기
   useEffect(() => {
     fetchRequested();
   }, []);
 
-  // ✅ 삭제 이벤트 발생 시 새로고침
+  // 삭제 이벤트 발생 시 새로고침
   useEffect(() => {
     const refreshHandler = () => {
       fetchRequested();
@@ -44,7 +44,7 @@ export default function RequestedWorkPage() {
     DONE: "완료",
   };
 
-  // ✅ 스와이프 네비게이션
+  // 스와이프 네비게이션
   useEffect(() => {
     let startX = 0;
 
@@ -76,7 +76,7 @@ export default function RequestedWorkPage() {
   const formatWorkPeriod = (work) => {
     const start = work.wdate ? new Date(work.wdate).toLocaleDateString() : "";
     const end = work.wend ? new Date(work.wend).toLocaleDateString() : "";
-    if (!start && !end) return "미정";
+    if (!start && !end) return "대기";
     return start && end ? `${start} ~ ${end}` : start || end;
   };
 
@@ -102,7 +102,7 @@ export default function RequestedWorkPage() {
             <div
               key={work.wcode}
               style={{
-                position: "relative", // 상태 배지 absolute 기준
+                position: "relative", 
                 background: "#fff",
                 padding: "12px",
                 borderRadius: "12px",
@@ -118,7 +118,7 @@ export default function RequestedWorkPage() {
             >
               {/* 상태 배지 우측 상단 */}
               <div style={{ position: "absolute", top: "12px", right: "12px" }}>
-                <StatusBadge label={statusMap[work.wstatus] || "미정"} />
+                <StatusBadge label={statusMap[work.wstatus] || "대기"} />
               </div>
 
               <div style={{ fontWeight: "bold", marginBottom: "4px" }}>

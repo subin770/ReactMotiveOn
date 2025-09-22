@@ -1,9 +1,9 @@
 // src/components/Work/WorkRegist.jsx
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import InputField from "../common/InputField";
 import Button from "../common/Button";
 import DatePicker from "../common/DatePicker";
-import OrgTree from "../common/OrgTree2"; // ✅ 조직도
+import OrgTree from "../common/OrgTree2"; // 조직도
 import { useNavigate, useLocation } from "react-router-dom";
 import { registWork } from "../motiveOn/api";
 import { useUserStore } from "../../store/userStore";   
@@ -20,18 +20,7 @@ export default function WorkRegist() {
   const [endDate, setEndDate] = useState("");
   const [content, setContent] = useState("");
   const [assignees, setAssignees] = useState([]);
-
-  // ✅ 담당자 선택
-  const handleSelectAssignee = (selectedUser) => {
-    if (!selectedUser?.value) return;
-
-    setAssignees((prev) => {
-      if (prev.some((a) => a.value === selectedUser.value)) {
-        return prev.filter((a) => a.value !== selectedUser.value);
-      }
-      return [...prev, selectedUser];
-    });
-  };
+  const orgTreeRef = useRef(null); // ref 추가
 
   // ✅ 저장 버튼
   const handleSave = () => {
@@ -53,13 +42,14 @@ export default function WorkRegist() {
     // 담당자 eno 배열
     const ownerEnos = assignees.map((a) => a.value);
 
-    // ✅ 등록 API 호출
+  
     registWork(
       {
         wtitle: title,
         wcontent: content,
         wdate: startDate || null,
         wend: endDate || null,
+        wstatus: "WAIT",
       },
       ownerEnos
     )
@@ -252,11 +242,17 @@ export default function WorkRegist() {
             }}
             onClick={(e) => e.stopPropagation()}
           >
-            <OrgTree
-              onSelect={handleSelectAssignee}
-              selectedAssignees={assignees}
+            <OrgTree ref={orgTreeRef} />
+            <Button
+              label="확인"
+              onClick={() => {
+                const selected = orgTreeRef.current?.getSelectedUser();
+                if (selected && selected.length > 0) {
+                  setAssignees(selected); 
+                }
+                setShowOrgTree(false);
+              }}
             />
-            <Button label="확인" onClick={() => setShowOrgTree(false)} />
           </div>
         </div>
       )}

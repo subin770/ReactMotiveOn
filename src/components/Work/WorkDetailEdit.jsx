@@ -3,7 +3,7 @@ import { useLocation, useNavigate, useParams } from "react-router-dom";
 import StatusBadge from "../common/StatusBadge";
 import Button from "../common/Button";
 import InputField from "../common/InputField";
-import { modifyWork } from "../motiveOn/api"; // ✅ 수정 API import
+import { modifyWork } from "../motiveOn/api"; 
 
 export default function WorkDetailEdit() {
   const location = useLocation();
@@ -54,7 +54,6 @@ export default function WorkDetailEdit() {
 
       if (res.data.message === "success" || res.data === "SUCCESS") {
         alert("업무가 수정되었습니다.");
-        // ✅ 수정 후 상세보기로 이동하면서 새로고침되도록 state 초기화
         navigate(`/work/detail/${wcode}`, { replace: true });
       } else {
         alert("수정 실패");

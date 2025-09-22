@@ -33,15 +33,42 @@ export default function WorkDetail() {
     fetchWorkDetail();
   }, [wcode]);
 
+  // 스와이프 제스처로 뒤로가기
+  useEffect(() => {
+    let touchStartX = 0;
+    let touchEndX = 0;
+
+    const handleTouchStart = (e) => {
+      touchStartX = e.touches[0].clientX;
+    };
+
+    const handleTouchEnd = (e) => {
+      touchEndX = e.changedTouches[0].clientX;
+      const distance = touchEndX - touchStartX;
+
+      // 👉 오른쪽으로 80px 이상 스와이프 시 뒤로가기
+      if (distance > 80) {
+        navigate(-1);
+      }
+    };
+
+    window.addEventListener("touchstart", handleTouchStart);
+    window.addEventListener("touchend", handleTouchEnd);
+
+    return () => {
+      window.removeEventListener("touchstart", handleTouchStart);
+      window.removeEventListener("touchend", handleTouchEnd);
+    };
+  }, [navigate]);
+
   // 삭제 처리
   const handleDelete = async () => {
     try {
-      // ✅ deleteWork 함수에서 쿼리 파라미터로 전달
       const res = await deleteWork(wcode);
 
       if (res.status === 200 && res.data.message === "success") {
         alert("업무가 삭제되었습니다.");
-        navigate("/work/reqlist", { replace: true }); // ✅ 요청업무 페이지로 이동
+        navigate("/work/reqlist", { replace: true });
       } else {
         alert("삭제 실패");
       }
@@ -192,7 +219,7 @@ export default function WorkDetail() {
       </div>
 
       {/* 버튼 영역 */}
-      {from === "reqlist" && (
+      {from === "reqlist" && work.wstatus === "WAIT" && (
         <div
           style={{
             borderTop: "1px solid #ddd",
