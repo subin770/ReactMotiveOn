@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import { IconPlus } from "../Work/icons";
 import { useNavigate } from "react-router-dom";
 import { getRequestedWork } from "../motiveOn/api";
+import StatusBadge from "../common/StatusBadge";
+
 
 export default function RequestedWorkPage() {
   const navigate = useNavigate();
@@ -19,6 +21,7 @@ export default function RequestedWorkPage() {
     }
   };
 
+
   // ✅ 최초 로딩 시 목록 불러오기
   useEffect(() => {
     fetchRequested();
@@ -34,6 +37,12 @@ export default function RequestedWorkPage() {
       window.removeEventListener("work:refresh", refreshHandler);
     };
   }, []);
+
+  const statusMap = {
+    WAIT: "대기",
+    PROGRESS: "진행중",
+    DONE: "완료",
+  };
 
   // ✅ 스와이프 네비게이션
   useEffect(() => {
@@ -64,6 +73,13 @@ export default function RequestedWorkPage() {
     };
   }, [navigate]);
 
+  const formatWorkPeriod = (work) => {
+    const start = work.wdate ? new Date(work.wdate).toLocaleDateString() : "";
+    const end = work.wend ? new Date(work.wend).toLocaleDateString() : "";
+    if (!start && !end) return "미정";
+    return start && end ? `${start} ~ ${end}` : start || end;
+  };
+
   return (
     <div style={{ padding: "16px", height: "788px", overflow: "auto" }}>
       <div
@@ -86,6 +102,7 @@ export default function RequestedWorkPage() {
             <div
               key={work.wcode}
               style={{
+                position: "relative", // 상태 배지 absolute 기준
                 background: "#fff",
                 padding: "12px",
                 borderRadius: "12px",
@@ -99,23 +116,20 @@ export default function RequestedWorkPage() {
                 })
               }
             >
+              {/* 상태 배지 우측 상단 */}
+              <div style={{ position: "absolute", top: "12px", right: "12px" }}>
+                <StatusBadge label={statusMap[work.wstatus] || "미정"} />
+              </div>
+
               <div style={{ fontWeight: "bold", marginBottom: "4px" }}>
                 {work.wtitle || work.wcode}
               </div>
               <div style={{ fontSize: "13px", color: "#555" }}>
-                {work.dno} {work.managerName || "담당자 없음"}
+                {work.managerName || "담당자 없음"}
               </div>
-              <div style={{ fontSize: "13px", color: "#777" }}>
-                상태: {work.wstatus}
-              </div>
-              <div
-                style={{
-                  fontSize: "12px",
-                  color: "#999",
-                  marginTop: "4px",
-                }}
-              >
-                마감: {work.wend || "미정"}
+
+              <div style={{ fontSize: "12px", color: "#999", marginTop: "4px" }}>
+                기한: {formatWorkPeriod(work)}
               </div>
             </div>
           ))

@@ -26,10 +26,11 @@ import WorkRegist from './components/Work/WorkRegist';
 
 
 // ===== 일정 =====
-import CalendarPage from "./components/Calendar/CalendarPage";
-import CalendarRegist from './components/Calendar/CalendarRegist';
-import CalendarDetail from "./components/Calendar/CalendarDetail";
-import CalendarEdit from "./components/Calendar/CalendarEdit";   
+import CalendarPage from "./components/calendar/CalendarPage";
+import CalendarRegist from './components/calendar/CalendarRegist';
+import CalendarDetailModal from "./components/common/CalendarDetailModal";
+import CalendarDetail from "./components/calendar/CalendarDetail"; 
+import CalendarEdit from "./components/calendar/CalendarEdit";   
 
 
 // 전자결재
@@ -81,6 +82,8 @@ function App() {
           <Route path="/calendar/CalendarRegist" element={<CalendarRegist />} />
           <Route path="/calendar/detail" element={<CalendarDetail />} />
           <Route path="/calendar/CalendarEdit" element={<CalendarEdit />} />
+          <Route path="/common/CalendarDetailModal" element={<CalendarDetailModal />} />
+
 
 
           {/* ===== Work 관련 (Layout 포함) ===== */}

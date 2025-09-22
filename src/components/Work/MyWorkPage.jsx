@@ -93,7 +93,7 @@ export default function MyWorkListPage() {
 
               <div style={{ fontWeight: "bold", marginBottom: "4px" }}>{work.wtitle || work.wcode}</div>
               <div style={{ fontSize: "13px", color: "#555" }}>
-                {work.dno} {work.managerName || "담당자 없음"}
+                {work.managerName || "담당자 없음"}
               </div>
               <div style={{ fontSize: "12px", color: "#999", marginTop: "4px" }}>
                 기한: {formatWorkPeriod(work)}

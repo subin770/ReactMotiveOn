@@ -16,6 +16,30 @@ const CalendarEventList = ({ events, selectedDate }) => {
     return `${day}일 (${weekday})`;
   };
 
+  // ✅ 시간 포맷 (YYYY.MM.DD HH:mm)
+  const formatDateTime = (val) => {
+    if (!val) return "";
+
+    // 문자열 형태 ("2025-09-22 01:00:00") → 직접 split 파싱
+    if (typeof val === "string" && val.includes(" ")) {
+      const [datePart, timePart] = val.split(" ");
+      const [y, m, d] = datePart.split("-");
+      const [hh, mm] = timePart.split(":");
+      return `${y}.${m}.${d} ${hh}:${mm}`;
+    }
+
+    // timestamp 형태 (숫자) → Date 객체 변환
+    const d = new Date(val);
+    if (isNaN(d.getTime())) return val;
+
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, "0");
+    const da = String(d.getDate()).padStart(2, "0");
+    const h = String(d.getHours()).padStart(2, "0");
+    const min = String(d.getMinutes()).padStart(2, "0");
+    return `${y}.${m}.${da} ${h}:${min}`;
+  };
+
   // 선택된 날짜가 이벤트 기간 안에 포함되는지 확인
   function isSameDay(selectedDate, start, end) {
     if (!start || !end) return false;
@@ -36,11 +60,9 @@ const CalendarEventList = ({ events, selectedDate }) => {
       const res = await deleteCalendar(selectedEvent.ccode);
       if (res.status === 200 && res.data === "success") {
         alert("삭제되었습니다.");
-        
         setDeleteConfirmOpen(false);
         setSelectedEvent(null);
         window.dispatchEvent(new Event("calendar:refresh"));
-        
       } else {
         alert("삭제 실패");
       }
@@ -111,6 +133,7 @@ const CalendarEventList = ({ events, selectedDate }) => {
         // 일정이 있을 때
         <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
           {filteredEvents.map((event, idx) => (
+            
             <li
               key={idx}
               style={{
@@ -138,8 +161,9 @@ const CalendarEventList = ({ events, selectedDate }) => {
                 <div style={{ fontSize: "14px", fontWeight: "500" }}>
                   {event.title}
                 </div>
+                {/* ✅ 시간 포맷 적용 */}
                 <div style={{ fontSize: "12px", color: "#7a7a7a" }}>
-                  {event.sdate} ~ {event.edate}
+                  {formatDateTime(event.start)} ~ {formatDateTime(event.end)}
                 </div>
               </div>
             </li>
@@ -174,9 +198,12 @@ const CalendarEventList = ({ events, selectedDate }) => {
         <CalendarDetailModal
           isOpen={!!selectedEvent}
           event={{
+            ...selectedEvent,
             title: selectedEvent.title,
             category: getCategoryLabel(selectedEvent.catecode),
-            date: `${selectedEvent.sdate} ~ ${selectedEvent.edate}`,
+            // ✅ 가공된 시간 문자열 전달
+            sdate: formatDateTime(selectedEvent.start),
+            edate: formatDateTime(selectedEvent.end),
             content: selectedEvent.content || "내용 없음",
           }}
           onModify={() => {
@@ -185,12 +212,12 @@ const CalendarEventList = ({ events, selectedDate }) => {
               state: { event: selectedEvent },
             });
           }}
-          onDelete={() => setDeleteConfirmOpen(true)} // 삭제 확인 모달 열기
+          onDelete={() => setDeleteConfirmOpen(true)}
           onClose={() => setSelectedEvent(null)}
         />
       )}
 
-      {/* 삭제 확인 모달 (직접 구현) */}
+      {/* 삭제 확인 모달 */}
       {deleteConfirmOpen && (
         <div
           style={{
@@ -227,7 +254,9 @@ const CalendarEventList = ({ events, selectedDate }) => {
             >
               정말 삭제하시겠습니까?
             </p>
-            <div style={{ display: "flex", justifyContent: "center", gap: "10px" }}>
+            <div
+              style={{ display: "flex", justifyContent: "center", gap: "10px" }}
+            >
               <button
                 type="button"
                 onClick={() => setDeleteConfirmOpen(false)}

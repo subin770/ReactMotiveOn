@@ -4,6 +4,44 @@ import React from "react";
 const CalendarDetailModal = ({ isOpen, event, onModify, onDelete, onClose }) => {
   if (!isOpen) return null;
 
+  // ✅ 날짜 포맷 함수 추가
+const formatDateTime = (val) => {
+  if (!val) return "";
+
+  // 문자열이면 수동으로 파싱
+  if (typeof val === "string") {
+    // "2025-09-22 01:00:00" → [2025,09,22,01,00,00]
+    const parts = val.split(/[- :]/); 
+    if (parts.length >= 5) {
+      const [y, m, d, hh, mm, ss] = parts;
+      const dateObj = new Date(
+        Number(y),
+        Number(m) - 1,
+        Number(d),
+        Number(hh),
+        Number(mm),
+        Number(ss || 0)
+      );
+      return `${y}.${m.padStart(2, "0")}.${d.padStart(2, "0")} ${hh.padStart(
+        2,
+        "0"
+      )}:${mm.padStart(2, "0")}`;
+    }
+  }
+
+  // 숫자(timestamp)면 그대로 Date로 처리
+  const d = new Date(val);
+  if (isNaN(d.getTime())) return val;
+
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const da = String(d.getDate()).padStart(2, "0");
+  const h = String(d.getHours()).padStart(2, "0");
+  const min = String(d.getMinutes()).padStart(2, "0");
+  return `${y}.${m}.${da} ${h}:${min}`;
+};
+
+
   return (
     <div
       style={{
@@ -55,7 +93,13 @@ const CalendarDetailModal = ({ isOpen, event, onModify, onDelete, onClose }) => 
             <strong style={{ display: "inline-block", width: "50px" }}>
               일시 :
             </strong>
-            <span>{event?.date || ""}</span>
+            <span>
+              {event?.sdate && event?.edate
+                ? `${formatDateTime(event.sdate)} ~ ${formatDateTime(
+                    event.edate
+                  )}`
+                : event?.date || ""}
+            </span>
           </div>
           <div>
             <strong style={{ display: "inline-block", width: "50px" }}>
