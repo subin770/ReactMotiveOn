@@ -1,3 +1,4 @@
+// src/components/calendar/CalendarEventList.jsx
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { IconPlus } from "../calendar/icons";
@@ -20,7 +21,7 @@ const CalendarEventList = ({ events, selectedDate }) => {
   const formatDateTime = (val) => {
     if (!val) return "";
 
-    // 문자열 형태 ("2025-09-22 01:00:00") → 직접 split 파싱
+    // 문자열 ("2025-09-22 01:00:00") → split
     if (typeof val === "string" && val.includes(" ")) {
       const [datePart, timePart] = val.split(" ");
       const [y, m, d] = datePart.split("-");
@@ -28,7 +29,7 @@ const CalendarEventList = ({ events, selectedDate }) => {
       return `${y}.${m}.${d} ${hh}:${mm}`;
     }
 
-    // timestamp 형태 (숫자) → Date 객체 변환
+    // timestamp → Date
     const d = new Date(val);
     if (isNaN(d.getTime())) return val;
 
@@ -54,7 +55,7 @@ const CalendarEventList = ({ events, selectedDate }) => {
     isSameDay(selectedDate, event.sdate, event.edate)
   );
 
-  // 삭제 확정 핸들러 (API 연동)
+  // 삭제 확정 핸들러
   const handleDeleteConfirm = async () => {
     try {
       const res = await deleteCalendar(selectedEvent.ccode);
@@ -72,7 +73,7 @@ const CalendarEventList = ({ events, selectedDate }) => {
     }
   };
 
-  // 분류 라벨 변환 함수
+  // 분류 라벨 변환
   const getCategoryLabel = (catecode) => {
     switch (catecode) {
       case "C":
@@ -133,7 +134,6 @@ const CalendarEventList = ({ events, selectedDate }) => {
         // 일정이 있을 때
         <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
           {filteredEvents.map((event, idx) => (
-            
             <li
               key={idx}
               style={{
@@ -143,7 +143,7 @@ const CalendarEventList = ({ events, selectedDate }) => {
                 borderBottom: "1px solid #eee",
                 cursor: "pointer",
               }}
-              onClick={() => setSelectedEvent(event)} // 상세 모달 열기
+              onClick={() => setSelectedEvent(event)}
             >
               {/* 아이콘(색 박스) */}
               <div
@@ -161,7 +161,6 @@ const CalendarEventList = ({ events, selectedDate }) => {
                 <div style={{ fontSize: "14px", fontWeight: "500" }}>
                   {event.title}
                 </div>
-                {/* ✅ 시간 포맷 적용 */}
                 <div style={{ fontSize: "12px", color: "#7a7a7a" }}>
                   {formatDateTime(event.start)} ~ {formatDateTime(event.end)}
                 </div>
@@ -171,7 +170,7 @@ const CalendarEventList = ({ events, selectedDate }) => {
         </ul>
       )}
 
-      {/* 우측 하단 플로팅 버튼 */}
+      {/* 플로팅 버튼 */}
       <button
         onClick={() => navigate("/calendar/CalendarRegist")}
         style={{
@@ -201,7 +200,6 @@ const CalendarEventList = ({ events, selectedDate }) => {
             ...selectedEvent,
             title: selectedEvent.title,
             category: getCategoryLabel(selectedEvent.catecode),
-            // ✅ 가공된 시간 문자열 전달
             sdate: formatDateTime(selectedEvent.start),
             edate: formatDateTime(selectedEvent.end),
             content: selectedEvent.content || "내용 없음",
@@ -209,7 +207,14 @@ const CalendarEventList = ({ events, selectedDate }) => {
           onModify={() => {
             setSelectedEvent(null);
             navigate("/calendar/CalendarEdit", {
-              state: { event: selectedEvent },
+              state: {
+                event: {
+                  ...selectedEvent,
+                  // ✅ 수정폼에서 불러올 수 있게 매핑
+                  sdate: selectedEvent.start,
+                  edate: selectedEvent.end,
+                },
+              },
             });
           }}
           onDelete={() => setDeleteConfirmOpen(true)}

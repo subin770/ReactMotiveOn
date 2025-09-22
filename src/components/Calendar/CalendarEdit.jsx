@@ -13,26 +13,40 @@ const CalendarEdit = () => {
   // ✅ 기존 일정 데이터
   const event = location.state?.event || {};
 
-  // ✅ timestamp → YYYY-MM-DD
-  const formatDate = (timestamp) => {
-    if (!timestamp) return "";
-    const d = new Date(timestamp);
+  // ✅ 문자열/숫자 모두 안전하게 Date/시간 문자열 변환
+  const formatDate = (val) => {
+    if (!val) return "";
+    if (typeof val === "string" && val.includes(" ")) {
+      const [datePart] = val.split(" "); // "2025-09-01"
+      return datePart;
+    }
+    const d = new Date(val);
+    if (isNaN(d.getTime())) return "";
     const yyyy = d.getFullYear();
     const mm = String(d.getMonth() + 1).padStart(2, "0");
     const dd = String(d.getDate()).padStart(2, "0");
-    return `${yyyy}-${mm}-${dd}`;
+    return `${yyyy}.${mm}.${dd}`;
   };
 
-  // ✅ timestamp → HH:mm
-  const formatTime = (timestamp) => {
-    if (!timestamp) return "";
-    const d = new Date(timestamp);
-    const hh = String(d.getHours()).padStart(2, "0");
-    const mi = String(d.getMinutes()).padStart(2, "0");
-    return `${hh}:${mi}`;
-  };
+// 문자열 → HH:mm 변환
+const formatTime = (val) => {
+  if (!val) return "";
+  if (typeof val === "string" && val.includes(" ")) {
+    const [, timePart] = val.split(" "); // "09:30:00"
+    const [hh, mm] = timePart.split(":");
+    return `${hh}:${mm}`; // ✅ "09:30"
+  }
+  const d = new Date(val);
+  if (isNaN(d.getTime())) return "";
+  const hh = String(d.getHours()).padStart(2, "0");
+  const mi = String(d.getMinutes()).padStart(2, "0");
+  return `${hh}:${mi}`;
+};
 
-  // ✅ 초기값 설정 (sdate, edate 사용)
+
+
+
+  // ✅ 초기값 설정
   const [title, setTitle] = useState(event.title || "");
   const [startDate, setStartDate] = useState(formatDate(event.sdate));
   const [startTime, setStartTime] = useState(formatTime(event.sdate));
@@ -87,9 +101,7 @@ const CalendarEdit = () => {
       {/* 본문 */}
       <div style={{ padding: "8.7px", height: "700px", overflowY: "auto" }}>
         {/* 제목 */}
-        <div
-          style={{ display: "flex", alignItems: "center", marginBottom: "13px" }}
-        >
+        <div style={{ display: "flex", alignItems: "center", marginBottom: "13px" }}>
           <label style={{ width: "60px", fontSize: "14px", fontWeight: "bold" }}>
             제목
           </label>
@@ -148,9 +160,7 @@ const CalendarEdit = () => {
         </div>
 
         {/* 분류 */}
-        <div
-          style={{ display: "flex", alignItems: "center", marginBottom: "13px" }}
-        >
+        <div style={{ display: "flex", alignItems: "center", marginBottom: "13px" }}>
           <label style={{ width: "60px", fontSize: "14px", fontWeight: "bold" }}>
             분류
           </label>
