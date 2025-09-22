@@ -1,44 +1,40 @@
+// src/components/common/Toast.jsx
 import React, { useEffect } from "react";
 
-const Toast = ({ message, isOpen, duration = 2000, onClose }) => {
+const Toast = ({ message, type = "success", duration = 3000, onClose }) => {
   useEffect(() => {
-    if (isOpen) {
-      const timer = setTimeout(() => {
-        onClose();
-      }, duration);
-      return () => clearTimeout(timer);
-    }
-  }, [isOpen, duration, onClose]);
+    const timer = setTimeout(onClose, duration);
+    return () => clearTimeout(timer);
+  }, [duration, onClose]);
 
-  if (!isOpen) return null;
+  const backgroundColor =
+    type === "success"
+      ? "#52586B"   // 초록
+      : type === "error"
+      ? "#f44336"   // 빨강
+      : type === "info"
+      ? "#2196f3"   // 파랑
+      : "#52586B";  // 기본
 
   return (
     <div
       style={{
         position: "fixed",
-        bottom: "60px", // 하단에서 조금 위로
+        bottom: "70px",
         left: "50%",
         transform: "translateX(-50%)",
-        background: "rgba(0,0,0,0.8)",
-        color: "#fff",
-        padding: "10px 20px",
-        borderRadius: "20px",
+        backgroundColor,
+        color: "#ffffff",
+        padding: "11px 16px",
+        borderRadius: "8px",
         fontSize: "14px",
-        zIndex: 10000,
-        animation: "fadeInOut 2s ease",
+        zIndex: 9999,
+        minWidth: "240px",
+        textAlign: "center",
+        boxShadow: "0 4px 8px rgba(0,0,0,0.25)",
       }}
     >
       {message}
-      <style>
-        {`
-          @keyframes fadeInOut {
-            0% { opacity: 0; transform: translate(-50%, 20px); }
-            10% { opacity: 1; transform: translate(-50%, 0); }
-            90% { opacity: 1; transform: translate(-50%, 0); }
-            100% { opacity: 0; transform: translate(-50%, 20px); }
-          }
-        `}
-      </style>
     </div>
   );
 };

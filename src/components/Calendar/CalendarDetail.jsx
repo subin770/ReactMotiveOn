@@ -23,13 +23,25 @@ const CalendarDetail = () => {
     }
   };
 
+  // ✅ YYYY.MM.DD HH:mm 형식으로 변환하는 함수
+  const formatDateTime = (datetime) => {
+    if (!datetime) return "";
+    const d = new Date(datetime);
+    const yyyy = d.getFullYear();
+    const mm = String(d.getMonth() + 1).padStart(2, "0");
+    const dd = String(d.getDate()).padStart(2, "0");
+    const hh = String(d.getHours()).padStart(2, "0");
+    const mi = String(d.getMinutes()).padStart(2, "0");
+    return `${yyyy}.${mm}.${dd} ${hh}:${mi}`;
+  };
+
   return (
     <CalendarDetailModal
       isOpen={true}
       event={{
         title: event.title,
         category: getCategoryLabel(event.catecode),
-        date: `${event.sdate} ~ ${event.edate}`,
+        date: `${formatDateTime(event.sdate)} ~ ${formatDateTime(event.edate)}`,
         content: event.content,
       }}
       onModify={() =>

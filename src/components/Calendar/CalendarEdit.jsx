@@ -1,8 +1,10 @@
+// src/components/calendar/CalendarEdit.jsx
 import React, { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import Button from "../common/Button";
 import DatePicker from "../common/DatePicker"; // ✅ 공통 DatePicker import
 import { modifyCalendar } from "../motiveOn/api"; // ✅ 일정 수정 API
+import Toast from "../common/Toast"; // ✅ 공통 Toast import
 
 const CalendarEdit = () => {
   const navigate = useNavigate();
@@ -39,10 +41,15 @@ const CalendarEdit = () => {
   const [category, setCategory] = useState(event.catecode || "");
   const [content, setContent] = useState(event.content || "");
 
+  // ✅ Toast 상태
+  const [toastMessage, setToastMessage] = useState("");
+  const [toastType, setToastType] = useState("success");
+
   // ✅ 수정 저장
   const handleUpdate = async () => {
     if (!title) {
-      alert("제목을 입력하세요");
+      setToastMessage("제목을 입력하세요.");
+      setToastType("error");
       return;
     }
 
@@ -61,14 +68,17 @@ const CalendarEdit = () => {
     try {
       const res = await modifyCalendar(updatedEvent);
       if (res.status === 200 && res.data === "success") {
-        alert("일정이 수정되었습니다.");
-        navigate("/calendarPage");
+        setToastMessage("일정이 수정되었습니다.");
+        setToastType("success");
+        setTimeout(() => navigate("/calendarPage"), 1500); // 1.5초 뒤 메인 이동
       } else {
-        alert("수정 실패");
+        setToastMessage("수정 실패");
+        setToastType("error");
       }
     } catch (err) {
       console.error("수정 오류:", err);
-      alert("서버 오류 발생");
+      setToastMessage("서버 오류 발생");
+      setToastType("error");
     }
   };
 
@@ -200,6 +210,16 @@ const CalendarEdit = () => {
         <Button label="취소" variant="secondary" onClick={() => navigate(-1)} />
         <Button label="수정" variant="primary" onClick={handleUpdate} />
       </div>
+
+      {/* ✅ Toast */}
+      {toastMessage && (
+        <Toast
+          message={toastMessage}
+          type={toastType}
+          duration={2000}
+          onClose={() => setToastMessage("")}
+        />
+      )}
     </div>
   );
 };

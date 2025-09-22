@@ -2,34 +2,36 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { deleteCalendar } from "../motiveOn/api";
+import Toast from "../common/Toast";
 
 const CalendarDetail = ({ event, onClose }) => {
   const navigate = useNavigate();
   const [deleteOpen, setDeleteOpen] = useState(false);
 
-  // ✅ 삭제 처리 함수
+  // Toast 상태
+  const [toastMessage, setToastMessage] = useState("");
+  const [toastType, setToastType] = useState("success");
+
+  // 삭제 처리 함수
   const handleDelete = async () => {
     try {
       const res = await deleteCalendar(event.ccode);
 
       if (res.status === 200 && res.data === "success") {
-        alert("삭제되었습니다.");
+        setToastMessage("일정이 삭제되었습니다.");
+        setToastType("success");
         setDeleteOpen(false);
-        if (res.status === 200 && res.data === "success") {
-          console.log("✅ 이벤트 발행");
-          window.dispatchEvent(new Event("calendar:refresh"));
-          onClose();
-}
 
-
-
-        
+        window.dispatchEvent(new Event("calendar:refresh"));
+        onClose();
       } else {
-        alert("삭제 실패");
+        setToastMessage("삭제 실패");
+        setToastType("error");
       }
     } catch (err) {
       console.error("삭제 오류:", err);
-      alert("서버 오류 발생");
+      setToastMessage("서버 오류 발생");
+      setToastType("error");
     }
   };
 
@@ -83,9 +85,7 @@ const CalendarDetail = ({ event, onClose }) => {
             <div>내용 : {event?.content}</div>
           </div>
 
-          <hr
-            style={{ margin: "16px 0", border: "0.5px solid #ddd" }}
-          />
+          <hr style={{ margin: "16px 0", border: "0.5px solid #ddd" }} />
 
           <div
             style={{
@@ -94,30 +94,36 @@ const CalendarDetail = ({ event, onClose }) => {
               gap: "10px",
             }}
           >
+            {/* 수정 버튼 → Toast 안내 */}
             <button
               type="button"
-              onClick={() => alert("수정 기능 연결 예정")}
+              onClick={() => {
+                setToastMessage("수정 기능은 준비 중입니다.");
+                setToastType("info");
+              }}
               style={{
                 background: "#999",
                 color: "#fff",
                 border: "none",
                 borderRadius: "6px",
-                padding: "8px 16px", // 버튼 크기 조금 줄임
+                padding: "8px 16px",
                 fontSize: "13px",
                 cursor: "pointer",
               }}
             >
               수정
             </button>
+
+            {/* 삭제 버튼 → 삭제 확인 모달 열기 */}
             <button
               type="button"
-              onClick={() => setDeleteOpen(true)} // 삭제 모달 열기
+              onClick={() => setDeleteOpen(true)}
               style={{
                 background: "#ca302e",
                 color: "#fff",
                 border: "none",
                 borderRadius: "6px",
-                padding: "8px 16px", // 버튼 크기 조금 줄임
+                padding: "8px 16px",
                 fontSize: "13px",
                 cursor: "pointer",
               }}
@@ -180,7 +186,7 @@ const CalendarDetail = ({ event, onClose }) => {
                   color: "#fff",
                   border: "none",
                   borderRadius: "6px",
-                  padding: "6px 14px", // 크기 줄임
+                  padding: "6px 14px",
                   fontSize: "13px",
                   cursor: "pointer",
                 }}
@@ -195,7 +201,7 @@ const CalendarDetail = ({ event, onClose }) => {
                   color: "#fff",
                   border: "none",
                   borderRadius: "6px",
-                  padding: "6px 14px", // 크기 줄임
+                  padding: "6px 14px",
                   fontSize: "13px",
                   cursor: "pointer",
                 }}
@@ -205,6 +211,16 @@ const CalendarDetail = ({ event, onClose }) => {
             </div>
           </div>
         </div>
+      )}
+
+      {/* ✅ Toast */}
+      {toastMessage && (
+        <Toast
+          message={toastMessage}
+          type={toastType}
+          duration={3000}   // 3초 동안 표시
+          onClose={() => setToastMessage("")}
+        />
       )}
     </>
   );
