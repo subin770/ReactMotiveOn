@@ -1,4 +1,3 @@
-// src/components/Approval/ApprovalComposePage.jsx
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import styled, { createGlobalStyle } from "styled-components";
 import { useNavigate, useLocation } from "react-router-dom";
@@ -380,17 +379,13 @@ export default function ApprovalComposePage() {
       {showOrgAssignee && (
         <ModalOverlay onClick={() => setShowOrgAssignee(false)}>
           <ModalCard onClick={(e) => e.stopPropagation()}>
-            <h3 style={{ marginTop: 0, textAlign: "center" }}>조직도 (담당자 선택)</h3>
+            
+            
             <TreeWrap onClick={onTreeClickAssignee}>
               <OrgTree />
             </TreeWrap>
-            <SelHint>
-              {assigneeTemp.length
-                ? `선택됨: ${assigneeTemp[0].name || assigneeTemp[0].label}`
-                : "선택된 담당자가 없습니다."}
-            </SelHint>
             <ModalActions>
-              <BtnGhost onClick={() => setShowOrgAssignee(false)}>취소</BtnGhost>
+              
               <BtnPrimary
                 onClick={() => {
                   if (!assigneeTemp.length) { alert("담당자를 선택해 주세요."); return; }
@@ -410,17 +405,13 @@ export default function ApprovalComposePage() {
       {showOrgRefs && (
         <ModalOverlay onClick={() => setShowOrgRefs(false)}>
           <ModalCard onClick={(e) => e.stopPropagation()}>
-            <h3 style={{ marginTop: 0, textAlign: "center" }}>조직도 (참조자 선택)</h3>
+            
             <TreeWrap onClick={onTreeClickRefs}>
               <OrgTree />
             </TreeWrap>
-            <SelHint>
-              {refsTemp.length
-                ? `선택됨: ${refsTemp.map((x) => x.name || x.label).join(", ")}`
-                : "선택된 참조자가 없습니다."}
-            </SelHint>
+            
             <ModalActions>
-              <BtnGhost onClick={() => setShowOrgRefs(false)}>취소</BtnGhost>
+              
               <BtnPrimary
                 onClick={() => {
                   setRefs(refsTemp.map((x) => ({ ...x, name: x.name || x.label })));
@@ -514,52 +505,74 @@ const Primary = styled.button` height: ${H}px; border-radius: 8px; border: 0; ba
 
 /* ====== 모달 & 트리 래퍼 ====== */
 const ModalOverlay = styled.div`
-  position: fixed; inset: 0;
+  position: fixed;
+  top: 0; left: 0;
+  width: 100vw; height: 100vh;
   background-color: rgba(0,0,0,0.5);
   display: flex; justify-content: center; align-items: center;
   z-index: 1000;
 `;
+
 const ModalCard = styled.div`
-  background: #fff;
-  border-radius: 12px;
+  background-color: #fff;
+  border-radius: 8px;
   padding: 20px;
   width: 80%;
-  max-width: 560px;
+  max-width: 500px;
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
 `;
+
+const SearchInput = styled.input`
+  width: 100%;
+  height: 36px;
+  padding: 0 10px;
+  margin-bottom: 12px;
+  border: 1px solid #ddd;   /* ✅ 테두리 색상 수정 */
+  border-radius: 6px;
+  font-size: 14px;
+  box-sizing: border-box;
+`;
+
+
+/* 트리 영역: 카드 안에서 스크롤되게 */
+const TreeWrap = styled.div`
+  flex: 1 1 auto;
+  overflow-y: auto;
+  min-height: 0;
+  /* ✅ 기존 border 제거 */
+  border: none;
+  padding: 4px 0;
+  margin-bottom: 16px;
+`;
+
+/* 액션 버튼 영역: 첫 모달과 동일한 '확인'만 쓰는 느낌 유지 */
 const ModalActions = styled.div`
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-  margin-top: 16px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
 `;
-const BtnGhost = styled.button`
-  height: 48px;
-  border-radius: 10px;
-  border: 1px solid #d9dbe3;
-  background: #fff;
-  font-size: 15px;
-  font-weight: 800;
-  cursor: pointer;
-`;
+
+/* 버튼 톤: 첫 모달의 기본 버튼 톤에 맞춘 미니멀 스타일 */
 const BtnPrimary = styled.button`
-  height: 48px;
-  border-radius: 10px;
-  border: 0;
-  background: #487FC3;
+  width: 100%;              /* ✅ 가로 전체 */
+  height: 44px;             /* ✅ 크기 넉넉히 */
+  border: none;
+  border-radius: 6px;
+  background: #2c7efc;      /* ✅ 파란색 */
   color: #fff;
   font-size: 15px;
-  font-weight: 800;
+  font-weight: 600;
   cursor: pointer;
 `;
-const SelHint = styled.div`
-  margin-top: 8px;
-  font-size: 12px;
-  color: #6f7892;
-`;
-const TreeWrap = styled.div`
-  max-height: min(60vh, 520px);
-  overflow: auto;
-  border: 1px solid #eaecef;
-  border-radius: 8px;
-  padding: 8px;
+const BtnGhost = styled.button`
+  appearance: none;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  padding: 8px 14px;
+  background: #fff;
+  color: #374151;
+  font-size: 14px;
+  cursor: pointer;
 `;

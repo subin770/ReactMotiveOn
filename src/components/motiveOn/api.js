@@ -1,16 +1,18 @@
 import axios from "axios";
 
+// ================== 공지 ================== //
 export function getnoticemain() {
-  return axios.get('/api/notice/main');
+  return axios.get("/api/notice/main");
 }
+
+// ================== 일정 ================== //
 export function getCalendarList() {
   const loginUser = JSON.parse(sessionStorage.getItem("user-storage"));
   const eno = loginUser?.state?.user?.eno;
-
   return axios.get(`/api/calendar/list?Eno=${eno}`);
 }
 
-//  일정 등록
+// 일정 등록
 export function registCalendar(calendar) {
   const loginUser = JSON.parse(sessionStorage.getItem("user-storage"));
   const eno = loginUser?.state?.user?.eno;
@@ -21,28 +23,23 @@ export function registCalendar(calendar) {
 export function modifyCalendar(calendar) {
   const loginUser = JSON.parse(sessionStorage.getItem("user-storage"));
   const eno = loginUser?.state?.user?.eno;
-
   return axios.post(`/api/calendar/modify?Eno=${eno}`, calendar);
 }
 
-
 // 일정 삭제
-
 export function deleteCalendar(ccode) {
   const loginUser = JSON.parse(sessionStorage.getItem("user-storage"));
   const eno = loginUser?.state?.user?.eno;
-
   return axios.post("/api/calendar/delete", { ccode, eno });
 }
 
-
-// ---------------------------------------------------------------------------//
-// 로그인 사용자 eno 가져오기
+// ================== 공통 함수 ================== //
 function getEno() {
   const loginUser = JSON.parse(sessionStorage.getItem("user-storage"));
-  return loginUser?.state?.user?.eno;   // ✅ eno만 반환
+  return loginUser?.state?.user?.eno;
 }
 
+// ================== 업무 ================== //
 // 요청한 업무 리스트
 export function getRequestedWork() {
   const eno = getEno();
@@ -64,30 +61,26 @@ export function getDepWorkList(dno) {
 export function getWorkDetail(wcode) {
   return axios.get(`/api/work/detail?wcode=${wcode}`);
 }
+
 // 업무 등록 (세션 불필요, requesterEno만 전송)
 export function registWork(workData, ownerEnos = []) {
-  const requesterEno = getEno(); // sessionStorage에서 로그인 사용자 eno 가져오기
+  const requesterEno = getEno();
   return axios.post(
     `/api/work/regist?requesterEno=${requesterEno}&ownerEno=${ownerEnos.join(",")}`,
     workData
   );
 }
 
-
-
-
-// ✅ 업무 수정 (Calendar modify와 동일 스타일)
+// 업무 수정
 export function modifyWork(workData) {
   const eno = getEno();
   return axios.post(`/api/work/modify?Eno=${eno}`, workData);
 }
 
-
-// 업무 삭제 API
+// 업무 삭제
 export const deleteWork = (wcode) => {
   return axios.post(`/api/work/delete?wcode=${wcode}`);
 };
-
 
 // 업무 상태 변경
 export function updateWorkStatus(wcode, status) {
@@ -98,16 +91,15 @@ export function updateWorkStatus(wcode, status) {
 // 승인
 export function approveWork(wcode) {
   const eno = getEno();
-  // 사유 필요 없음 → wcode, eno만 전달
   return axios.post(`/api/work/approve?wcode=${wcode}&eno=${eno}`);
 }
 
 // 반려
 export function rejectWork(wcode) {
   const eno = getEno();
-  // 사유 필요 없음 → wcode, eno만 전달
   return axios.post(`/api/work/reject?wcode=${wcode}&eno=${eno}`);
 }
+
 // 이의 제기
 export function objectionWork(wcode, reason) {
   const eno = getEno();
@@ -128,86 +120,49 @@ export function requestDelegate(wcode, delegateEno) {
   return axios.post(`/api/work/requestDelegate?wcode=${wcode}&eno=${delegateEno}&requesterEno=${eno}`);
 }
 
-
-
-
-
-
 // ================== 조직도 ================== //
-
 export function getOrgTree() {
-  return axios.get("/api/org/tree");   // 👉 프록시 + 컨트롤러 매핑 일치
+  return axios.get("/api/org/tree");
 }
 
 export function getOrgChildren(parent = "#") {
   return axios.get("/api/org/children", { params: { parent } });
 }
 
-
-
-
-
-
-
-// ---------------------------------------------------------------------------------------------//
-
-//---------------------------------------------------------------------------------------------------//
-/* ======== 전자결재(Approval) API 추가 ======== */
-
-// 대시보드 홈(카운트 + 최근작성 + 결재할 문서)
+// ================== 전자결재 ================== //
+// 대시보드 홈 (카운트 + 최근 문서)
 export function getApprovalHome() {
-  return axios.get(`/api/approval/home.json`);
+  return axios.get("/api/approval/home.json", {
+    headers: { Accept: "application/json" },
+    withCredentials: true,
+  });
 }
 
 // 열람함 목록
 export function getApprovalViewerList(params = {}) {
-  const p = {
-    period: "all",
-    field: "title",
-    q: "",
-    page: 1,
-    size: 10,
-    ...params,
-  };
+  const p = { period: "all", field: "title", q: "", page: 1, size: 10, ...params };
   const qs = new URLSearchParams(p).toString();
   return axios.get(`/api/approval/viewerList.json?${qs}`);
 }
 
 // 기안함 목록
 export function getApprovalDraftList(params = {}) {
-  const p = {
-    period: "all",
-    field: "title",
-    q: "",
-    page: 1,
-    size: 10,
-    ...params,
-  };
+  const p = { period: "all", field: "title", q: "", page: 1, size: 10, ...params };
   const qs = new URLSearchParams(p).toString();
   return axios.get(`/api/approval/draftList.json?${qs}`);
 }
 
+// 결재할 문서 목록
 export async function getApprovalApproveList(params = {}) {
-  const p = {
-    tab: "mine",
-    period: "all",
-    field: "title",
-    q: "",
-    urgent: 0,
-    page: 1,
-    size: 10,
-    ...params,
-  };
+  const p = { tab: "mine", period: "all", field: "title", q: "", urgent: 0, page: 1, size: 10, ...params };
   const qs = new URLSearchParams(p).toString();
 
   try {
-    // 기본 경로
     return await axios.get(`/api/approval/approveList.json?${qs}`, {
       headers: { Accept: "application/json" },
       withCredentials: true,
     });
   } catch (err) {
-    // 혹시 컨텍스트/매핑 차이로 404면 폴백 경로 한번 더 시도
     if (err?.response?.status === 404) {
       return await axios.get(`/approval/approveList.json?${qs}`, {
         headers: { Accept: "application/json" },
@@ -218,49 +173,38 @@ export async function getApprovalApproveList(params = {}) {
   }
 }
 
-// 상세
+// 상세 조회
 export function getApprovalDetail(signNo) {
   return axios.get(`/api/approval/detail.json?signNo=${encodeURIComponent(signNo)}`);
 }
 
-
-/* ======== 임시문서함 목록(템플릿) ======== */
-// 컨트롤러: ApprovalController2.tempListJson (GET /api/approval/tempList.json)
-// PageResponse 형태: { content, page, size, totalElements, totalPages }
+// 임시문서함 목록
 export function getApprovalTempList(params = {}) {
-  const p = {
-    period: "all",
-    field: "title",
-    q: "",
-    page: 1,
-    size: 50,   // 모바일은 한번에 넉넉히
-    ...params,
-  };
+  const p = { period: "all", field: "title", q: "", page: 1, size: 50, ...params };
   const qs = new URLSearchParams(p).toString();
   return axios.get(`/api/approval/tempList.json?${qs}`);
 }
 
-
-// 임시저장(JSON 바디)
+// 임시저장
 export function tempSaveApproval(vo) {
   return axios.post(`/api/approval/temp-save`, vo);
 }
 
-// 임시보관함 다건 삭제(JSON 바디: ids 배열)
+// 임시보관함 다건 삭제
 export function deleteTempApprovals(ids) {
   return axios.post(`/api/approval/temp/delete.json`, { ids });
 }
 
-// 본 저장(JSON 바디)
+// 본 저장
 export function saveApproval(vo) {
   return axios.post(`/api/approval/save`, vo);
 }
 
-// 결재선 처리(승인/반려) — 서버가 폼 POST + 리다이렉트하는 엔드포인트
+// 결재선 처리 (승인/반려)
 export function actApprovalLine({ signNo, action, comment = "" }) {
   const form = new URLSearchParams();
   form.append("signNo", signNo);
-  form.append("action", action); // "approve" | "reject"
+  form.append("action", action);
   if (comment) form.append("comment", comment);
 
   return axios.post(`/api/approval/line/act`, form, {
@@ -268,18 +212,19 @@ export function actApprovalLine({ signNo, action, comment = "" }) {
   });
 }
 
-/** 양식 분류 목록 */
+// 양식 분류 목록
 export function getFormClasses() {
-  return client.get("/api/approval/formClasses.json");
+  return axios.get("/api/approval/formClasses.json");
 }
 
-/** 양식 목록 (검색/분류/페이징) */
+// 양식 목록
 export function getForms({ q = "", classNo, page = 1, size = 50 } = {}) {
-  const qs = toQuery({ q, classNo, page, size });
-  return client.get(`/api/approval/forms.json?${qs}`);
+  const qs = new URLSearchParams({ q, classNo, page, size }).toString();
+  return axios.get(`/api/approval/forms.json?${qs}`);
 }
 
-/** 양식 단건 조회 */
+// 양식 단건 조회
 export function getFormByNo(sformno) {
-  return client.get(`/api/approval/form.json?${toQuery({ sformno })}`);
+  const qs = new URLSearchParams({ sformno }).toString();
+  return axios.get(`/api/approval/form.json?${qs}`);
 }

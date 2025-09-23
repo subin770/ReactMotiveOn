@@ -2,11 +2,25 @@
 import React, { useState, useEffect } from "react";   // ✅ useEffect 추가
 import StatusCard from "../common/StatusCard";
 import { Link } from "react-router-dom";
-import { getCalendarList } from "../motiveOn/api";   // ✅ 일정 API 불러오기
+import { 
+  getCalendarList, 
+  getApprovalHome, 
+  getApprovalApproveList 
+} from "../motiveOn/api";   // ✅ 일정 + 전자결재 API 불러오기
 
 const HomePage = () => {
-  const [activeTab, setActiveTab] = useState("긴급");
+  const [activeTab, setActiveTab] = useState("내 차례"); // 기본: 내 차례
   const [todayEvents, setTodayEvents] = useState([]);
+
+  // ===== 전자결재 상태 =====
+  const [apprLoading, setApprLoading] = useState(false);
+  const [apprItems, setApprItems] = useState([]); // 현재 탭 목록
+  const [apprCounts, setApprCounts] = useState({
+    urgent: 0,      // 긴급
+    mine: 0,        // 내 차례(대기/내 업무)
+    rejected: 0,    // 반려
+    approved: 0,    // 승인
+  });
 
   // 오늘 날짜 (YYYY.MM.DD)
   const today = new Date();
@@ -65,33 +79,86 @@ const HomePage = () => {
   const weekdays = ["일", "월", "화", "수", "목", "금", "토"];
   const weekdayStr = weekdays[today.getDay()];
 
-  const approvalData = {
-    긴급: [
-      "긴급 결재 문서입니다.",
-      "긴급 결재가 필요한 문서 1",
-      "긴급 결재가 필요한 문서 2",
-      "긴급 결재가 필요한 문서 3",
-      "긴급 결재가 필요한 문서 4",
-      "긴급 결재가 필요한 문서 5",
-      "긴급 결재가 필요한 문서 6",
-      "긴급 결재 문서입니다.",
-    ],
-    반려: [
-      "반려된 결재 문서입니다.",
-      "반려 사유: 서명 누락",
-      "반려 사유: 예산 초과",
-    ],
-    보류: [
-      "보류된 결재 문서입니다.",
-      "보류: 담당자 확인 필요",
-      "보류: 추가 자료 요청",
-    ],
-    대기: [
-      "결재 대기 문서입니다.",
-      "대기: 부서장 승인 필요",
-      "대기: 회계팀 확인 필요",
-    ],
+  /* ================= 전자결재 연동 ================= */
+
+  // 홈 요약(있을 때만 사용)
+  useEffect(() => {
+    (async () => {
+      try {
+        const res = await getApprovalHome(); // { urgentCount, returnedCount, holdCount, waitingCount, ... }
+        const d = res?.data || {};
+        const counts = {
+          urgent:   d.urgentCount ?? d.emergencyCount ?? 0,
+          mine:     d.mineCount ?? d.todoCount ?? d.waitingCount ?? 0,
+          rejected: d.returnedCount ?? d.rejectedCount ?? 0,
+          approved: d.approvedCount ?? d.doneCount ?? d.completeCount ?? 0,
+        };
+        setApprCounts((prev) => ({ ...prev, ...counts }));
+      } catch (e) {
+        console.warn("전자결재 요약 불러오기 실패(무시):", e?.message || e);
+      }
+    })();
+  }, []);
+
+  // 탭 → approveList 파라미터 매핑
+  const TAB_ORDER = ["긴급", "내 차례", "반려", "승인"];
+  const TAB_TO_PARAMS = (tab) => {
+    if (tab === "긴급")      return { tab: "mine", urgent: 1, page: 1, size: 20 };
+    if (tab === "내 차례")   return { tab: "mine", urgent: 0, page: 1, size: 20 };
+    if (tab === "반려")     return { tab: "rejected", page: 1, size: 20 };
+    if (tab === "승인")     return { tab: "approved", page: 1, size: 20 };
+    return { tab: "mine", page: 1, size: 20 };
   };
+  const TAB_TO_KEY = (tab) => (
+    tab === "긴급" ? "urgent" :
+    tab === "내 차례" ? "mine" :
+    tab === "반려" ? "rejected" : "approved"
+  );
+
+  // 항목 렌더링용 안전 필드
+  const getItemTitle = (it) => it?.title ?? it?.docTitle ?? it?.subject ?? "(제목없음)";
+  const getItemDate  = (it) => it?.createdAt ?? it?.regdate ?? it?.writeDate ?? it?.updatedAt;
+  const getItemId    = (it) => it?.signNo ?? it?.adno ?? it?.id ?? it?.docNo;
+
+  // 탭 변경 시 목록 로드
+  useEffect(() => {
+    let alive = true;
+    (async () => {
+      setApprLoading(true);
+      try {
+        const res = await getApprovalApproveList(TAB_TO_PARAMS(activeTab));
+        const list =
+          Array.isArray(res?.data?.content) ? res.data.content :
+          Array.isArray(res?.data?.list)    ? res.data.list :
+          Array.isArray(res?.data)          ? res.data : [];
+        if (alive) {
+          setApprItems(Array.isArray(list) ? list : []);
+          const key = TAB_TO_KEY(activeTab);
+          setApprCounts((prev) => ({ ...prev, [key]: list.length || prev[key] || 0 }));
+        }
+      } catch (e) {
+        console.error("전자결재 목록 불러오기 실패:", e);
+        if (alive) setApprItems([]);
+      } finally {
+        if (alive) setApprLoading(false);
+      }
+    })();
+    return () => { alive = false; };
+  }, [activeTab]);
+
+  const getTabCount = (tab) => {
+    const key = TAB_TO_KEY(tab);
+    if (tab === activeTab) return apprItems.length || apprCounts[key] || 0;
+    return apprCounts[key] || 0;
+  };
+
+  // 결재페이지로 이동할 때 한글 탭 + 내부 키를 함께 넘김
+  const approvalLinkProps = { 
+    to: "/approval", 
+    state: { tab: activeTab, tabKey: TAB_TO_PARAMS(activeTab).tab } 
+  };
+
+  /* ================= 렌더 ================= */
 
   return (
     <div
@@ -246,7 +313,7 @@ const HomePage = () => {
         </div>
       </section>
 
-      {/* 전자결재 */}
+      {/* 전자결재 (⚙ 기안문서함 API 연동: 긴급/내 차례/반려/승인) */}
       <section
         style={{
           padding: "16px",
@@ -268,7 +335,12 @@ const HomePage = () => {
           }}
         >
           <span>전자결재</span>
-          <Link to="/approvalPage" style={{ fontSize: "12px", color: "#bbb" }}>
+          {/* ✅ 현재 탭 상태를 그대로 결재페이지에 전달 (한글 탭 + 내부 tabKey) */}
+          <Link
+            to="/approval"
+            state={{ tab: activeTab, tabKey: TAB_TO_PARAMS(activeTab).tab }}
+            style={{ fontSize: "12px", color: "#bbb" }}
+          >
             바로가기
           </Link>
         </div>
@@ -288,7 +360,7 @@ const HomePage = () => {
               borderBottom: "0.9px solid #ddd",
             }}
           >
-            {["긴급", "반려", "보류", "대기"].map((tab) => (
+            {TAB_ORDER.map((tab) => (
               <div
                 key={tab}
                 onClick={() => setActiveTab(tab)}
@@ -306,7 +378,7 @@ const HomePage = () => {
                       : "3px solid transparent",
                 }}
               >
-                {tab}
+                {tab} ({getTabCount(tab)})
               </div>
             ))}
           </div>
@@ -322,21 +394,63 @@ const HomePage = () => {
               borderBottomRightRadius: "8px",
             }}
           >
-            {approvalData[activeTab].map((item, idx) => (
-              <li
-                key={idx}
-                style={{
-                  fontSize: "14px",
-                  color: "#444",
-                  lineHeight: "3",
-                  listStyleType: "disc",
-                  paddingLeft: "15px",
-                  margin: 0,
-                }}
-              >
-                {item}
-              </li>
-            ))}
+            {apprLoading ? (
+              <div style={{ fontSize: "13px", color: "#777", padding: "6px 2px" }}>
+                불러오는 중…
+              </div>
+            ) : apprItems.length === 0 ? (
+              <div style={{ fontSize: "13px", color: "#777", padding: "6px 2px" }}>
+                문서가 없습니다.
+              </div>
+            ) : (
+              apprItems.map((item, idx) => {
+                const id = getItemId(item);
+                return (
+                  <li
+                    key={id ?? `${activeTab}-${idx}`}
+                    style={{
+                      fontSize: "14px",
+                      color: "#444",
+                      lineHeight: "1.9",
+                      listStyleType: "disc",
+                      paddingLeft: "15px",
+                      margin: "6px 0",
+                    }}
+                  >
+                    {/* ✅ 제목 클릭 → 상세 페이지 이동 */}
+                    <div style={{ fontWeight: 500 }}>
+                      {id ? (
+                        <Link
+                          to={`/approval/detail/${encodeURIComponent(id)}`}
+                          state={{ from: "home", tab: activeTab }}
+                          style={{ color: "#2c557d", textDecoration: "none" }}
+                          title="상세 페이지로 이동"
+                        >
+                          {getItemTitle(item)}
+                        </Link>
+                      ) : (
+                        <span title="ID 없음으로 이동 불가">{getItemTitle(item)}</span>
+                      )}
+                    </div>
+                    <div style={{ fontSize: "12px", color: "#888" }}>
+                      {formatDateTime(getItemDate(item))}
+                      {item?.writerName ? ` · ${item.writerName}` : ""}
+                    </div>
+                  </li>
+                );
+              })
+            )}
+          </div>
+
+          {/* 더보기 */}
+          <div style={{ display: "flex", justifyContent: "flex-end", padding: "8px 12px" }}>
+            <Link 
+              to="/Approval" 
+              state={{ tab: activeTab, tabKey: TAB_TO_PARAMS(activeTab).tab }} 
+              style={{ fontSize: "12px", color: "#2c557d", textDecoration: "none" }}
+            >
+              더보기 →
+            </Link>
           </div>
         </div>
       </section>

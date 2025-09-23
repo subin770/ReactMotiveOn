@@ -92,7 +92,7 @@ export default function WorkRegist() {
     fontSize: "14px",
     color: "#333",
     flexShrink: 0,
-    marginRight: "8px",
+    marginRight: "6px",
   };
   const inputWrapperStyle = { flex: 1 };
   const commonInputStyle = {
@@ -120,7 +120,10 @@ export default function WorkRegist() {
         {/* 제목 */}
         <div style={fieldRowStyle}>
           <div style={labelStyle}>제목</div>
-          <div style={inputWrapperStyle}>
+          <div style={{...inputWrapperStyle,
+            marginTop: "-2px",
+            marginBottom : "-16px",
+          }}>
             <InputField
               value={title}
               onChange={(e) => setTitle(e.target.value)}
@@ -157,7 +160,10 @@ export default function WorkRegist() {
         {/* 시작일 */}
         <div style={fieldRowStyle}>
           <div style={labelStyle}>시작일</div>
-          <div style={inputWrapperStyle}>
+          <div style={{...inputWrapperStyle,
+            marginTop: "-2px",
+            marginBottom : "-16px",
+          }}>
             <DatePicker
               dateValue={startDate}
               onDateChange={setStartDate}
@@ -169,7 +175,10 @@ export default function WorkRegist() {
         {/* 종료일 */}
         <div style={fieldRowStyle}>
           <div style={labelStyle}>종료일</div>
-          <div style={inputWrapperStyle}>
+          <div style={{...inputWrapperStyle,
+            marginTop: "-2px",
+            marginBottom : "-16px",
+          }}>
             <DatePicker
               dateValue={endDate}
               onDateChange={setEndDate}
@@ -179,6 +188,11 @@ export default function WorkRegist() {
         </div>
 
         {/* 내용 */}
+
+        <div style={{...inputWrapperStyle,
+            marginTop: "20px",
+           
+          }}></div>
         <div
           style={{
             ...fieldRowStyle,
@@ -193,12 +207,12 @@ export default function WorkRegist() {
             placeholder="내용을 입력하세요."
             style={{
               flex: 1,
-              padding: "10px",
+              padding: "12px",
               borderRadius: "6px",
               border: "1px solid #ccc",
               backgroundColor: "#f9f9f9",
               fontSize: "14px",
-              height: "325px",
+              height: "410px",
               resize: "vertical",
               boxSizing: "border-box",
               outline: "none",
