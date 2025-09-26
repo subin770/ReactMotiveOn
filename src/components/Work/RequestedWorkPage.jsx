@@ -40,7 +40,7 @@ export default function RequestedWorkPage() {
 
   const statusMap = {
     WAIT: "대기",
-    PROGRESS: "진행중",
+    ING: "진행중",
     DONE: "완료",
   };
 

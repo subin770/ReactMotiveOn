@@ -6,6 +6,13 @@
 
 
 .jstree-default .jstree-hovered {
-  
+
+  border-radius: 4px;
+}
+
+/* 직원 선택 시 하늘색 유지 */
+.employee-selected {
+  background-color: #cce5ff !important; 
+  color: #004085 !important;            
   border-radius: 4px;
 }
