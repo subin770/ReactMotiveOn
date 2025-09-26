@@ -11,7 +11,8 @@ export default function WorkDetail() {
   const navigate = useNavigate();
   const from = location.state?.from;
 
-  const [work, setWork] = useState(null);
+  // ✅ 수정된 값이 있으면 우선 사용
+  const [work, setWork] = useState(location.state?.work || null);
   const [deleteOpen, setDeleteOpen] = useState(false);
 
   const statusMap = {
@@ -20,18 +21,20 @@ export default function WorkDetail() {
     DONE: "완료",
   };
 
-  // 상세 데이터 가져오기
+  // ✅ state에 값이 없을 때만 서버에서 불러오기
   useEffect(() => {
-    const fetchWorkDetail = async () => {
-      try {
-        const res = await getWorkDetail(wcode);
-        setWork(res.data.work);
-      } catch (err) {
-        console.error("업무 상세 불러오기 실패:", err);
-      }
-    };
-    fetchWorkDetail();
-  }, [wcode]);
+    if (!work) {
+      const fetchWorkDetail = async () => {
+        try {
+          const res = await getWorkDetail(wcode);
+          setWork(res.data.work);
+        } catch (err) {
+          console.error("업무 상세 불러오기 실패:", err);
+        }
+      };
+      fetchWorkDetail();
+    }
+  }, [wcode, work]);
 
   // 스와이프 제스처로 뒤로가기
   useEffect(() => {
@@ -46,7 +49,6 @@ export default function WorkDetail() {
       touchEndX = e.changedTouches[0].clientX;
       const distance = touchEndX - touchStartX;
 
-      // 👉 오른쪽으로 80px 이상 스와이프 시 뒤로가기
       if (distance > 80) {
         navigate(-1);
       }

@@ -41,10 +41,12 @@ const Info = styled.p`
 function PasswordConfirm() {
   const location = useLocation();
   const navigate = useNavigate();
+
+  // ✅ 서버에서 전달받은 값 (이메일 + 비밀번호)
   const email = location.state?.email || "이메일 주소";
+  const pwd = location.state?.pwd;
 
   const handleConfirm = () => {
-    // 로그인 페이지로 이동
     navigate('/login');
   };
 
@@ -55,14 +57,22 @@ function PasswordConfirm() {
         alt="Motive On"
         style={{ width: "160px", marginBottom: "40px" }}
       />
-      <Title>이메일을 확인해주세요</Title>
+      <Title>비밀번호 확인</Title>
       <Description>
-        비밀번호 재설정 메일을 귀하의{" "}
-        <a href={`mailto:${email}`}>{email}</a>로 보냈습니다.
+        <strong>{email}</strong> 계정의 비밀번호는 아래와 같습니다:
       </Description>
+
+      {/* ✅ pwd 값이 있으면 표시, 없으면 안내문 */}
+      {pwd ? (
+        <Title style={{ color: "#3A8DFE", fontSize: "20px" }}>{pwd}</Title>
+      ) : (
+        <Title style={{ color: "red", fontSize: "16px" }}>
+          비밀번호를 불러오지 못했습니다.
+        </Title>
+      )}
+
       <Info>
-        혹시 메일을 받지 못하셨나요?<br />
-        가입된 이메일이 아니거나, 스팸으로 분류될 경우 메일을 받지 못할 수 있습니다.
+        보안을 위해 로그인 후 반드시 비밀번호를 변경하세요.
       </Info>
       <Button label="확인" variant="primary" onClick={handleConfirm} />
     </Container>

@@ -5,10 +5,9 @@ import Button from '../common/Button';
 import InputField from '../common/InputField';
 import PasswordError from '../Login/PasswordError';
 
-
 const PasswordReset = () => {
   const [email, setEmail] = useState("");
-    const [isErrorOpen, setIsErrorOpen] = useState(false); // ← 여기 필수!
+  const [isErrorOpen, setIsErrorOpen] = useState(false);
 
   const navigate = useNavigate();
 
@@ -21,21 +20,29 @@ const PasswordReset = () => {
     }
 
     try {
-      const response = await fetch('/api/commons/check-email', {
+      // ✅ check-email 대신 find-pwd 호출
+      const response = await fetch('/api/commons/find-pwd', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email }),
       });
 
+      if (!response.ok) {
+        // 404 또는 서버 오류 처리
+        setIsErrorOpen(true);
+        return;
+      }
+
       const data = await response.json();
 
       if (data.exists) {
-        navigate('/login/passwordConfirm', { state: { email } });
+        // ✅ 이메일 + 비밀번호 같이 전달
+        navigate('/login/passwordConfirm', { state: { email: data.email, pwd: data.pwd } });
       } else {
-        setIsErrorOpen(true); // 이메일 없으면 모달 열기
+        setIsErrorOpen(true);
       }
     } catch (error) {
-      console.error("이메일 확인 중 오류 발생:", error);
+      console.error("비밀번호 찾기 중 오류 발생:", error);
       alert("서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
     }
   };
@@ -84,7 +91,7 @@ const PasswordReset = () => {
         <Button label="확인" variant="primary" type="submit" />
       </form>
 
-       {/* 모달 */}
+      {/* 모달 */}
       <PasswordError isOpen={isErrorOpen} onClose={() => setIsErrorOpen(false)} />
     </div>
   );
