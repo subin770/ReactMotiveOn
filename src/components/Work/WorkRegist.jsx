@@ -42,7 +42,6 @@ export default function WorkRegist() {
     // 담당자 eno 배열
     const ownerEnos = assignees.map((a) => a.value);
 
-  
     registWork(
       {
         wtitle: title,
@@ -66,20 +65,24 @@ export default function WorkRegist() {
   // === 스타일 ===
   const pageWrapperStyle = {
     width: "100%",
+    height: "100vh",           // ✅ 전체 화면
     display: "flex",
     flexDirection: "column",
-    maxHeight: "788px",
     fontFamily: "Noto Sans CJK KR, sans-serif",
     backgroundColor: "#f0f2f5",
+    overflow: "hidden",        // ✅ body 스크롤 막고 내부 스크롤만
   };
   const contentContainerStyle = {
     flex: 1,
     maxWidth: "390px",
-    maxHeight: "704px",
     padding: "16px",
     backgroundColor: "white",
     boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
     boxSizing: "border-box",
+    overflowY: "auto",         // ✅ 본문 스크롤
+    paddingBottom: "80px",     // ✅ 버튼 영역 확보
+    margin: "0 auto",
+    width: "100%",
   };
   const fieldRowStyle = {
     display: "flex",
@@ -112,19 +115,21 @@ export default function WorkRegist() {
     backgroundColor: "#f5f5f5",
     cursor: "pointer",
   };
-  const buttonContainerStyle = { position: "fixed",   // 📌 항상 하단 고정
-      bottom: 0,
-      left: 0,
-      width: "100%",
-      maxWidth: "390px",   // 모바일 화면 크기 맞춤
-      margin: "0 auto",
-      background: "#fff",
-      borderTop: "1px solid #ddd",
-      padding: "12px 16px",
-      display: "flex",
-      gap: "12px",
-      justifyContent: "center",
-      zIndex: 1000,      };   // 다른 요소보다 위에
+  const buttonContainerStyle = { 
+    position: "fixed",   // 📌 항상 하단 고정
+    bottom: 0,
+    left: 0,
+    width: "100%",
+    maxWidth: "390px",   // 모바일 화면 크기 맞춤
+    margin: "0 auto",
+    background: "#fff",
+    borderTop: "1px solid #ddd",
+    padding: "12px 16px",
+    display: "flex",
+    gap: "12px",
+    justifyContent: "center",
+    zIndex: 1000,      
+  };
 
   return (
     <div style={pageWrapperStyle}>
@@ -132,9 +137,10 @@ export default function WorkRegist() {
         {/* 제목 */}
         <div style={fieldRowStyle}>
           <div style={labelStyle}>제목</div>
-          <div style={{...inputWrapperStyle,
+          <div style={{
+            ...inputWrapperStyle,
             marginTop: "-2px",
-            marginBottom : "-16px",
+            marginBottom: "-16px",
           }}>
             <InputField
               value={title}
@@ -172,9 +178,10 @@ export default function WorkRegist() {
         {/* 시작일 */}
         <div style={fieldRowStyle}>
           <div style={labelStyle}>시작일</div>
-          <div style={{...inputWrapperStyle,
+          <div style={{
+            ...inputWrapperStyle,
             marginTop: "-2px",
-            marginBottom : "-16px",
+            marginBottom: "-16px",
           }}>
             <DatePicker
               dateValue={startDate}
@@ -187,9 +194,10 @@ export default function WorkRegist() {
         {/* 종료일 */}
         <div style={fieldRowStyle}>
           <div style={labelStyle}>종료일</div>
-          <div style={{...inputWrapperStyle,
+          <div style={{
+            ...inputWrapperStyle,
             marginTop: "-2px",
-            marginBottom : "-16px",
+            marginBottom: "-16px",
           }}>
             <DatePicker
               dateValue={endDate}
@@ -200,11 +208,10 @@ export default function WorkRegist() {
         </div>
 
         {/* 내용 */}
-
-        <div style={{...inputWrapperStyle,
-            marginTop: "20px",
-           
-          }}></div>
+        <div style={{
+          ...inputWrapperStyle,
+          marginTop: "20px",
+        }}></div>
         <div
           style={{
             ...fieldRowStyle,
@@ -224,8 +231,10 @@ export default function WorkRegist() {
               border: "1px solid #ccc",
               backgroundColor: "#f9f9f9",
               fontSize: "14px",
-              height: "410px",
-              resize: "vertical",
+              minHeight: "180px",   // ✅ 일정 크기 확보
+              maxHeight: "300px",   // ✅ 너무 커지지 않도록 제한
+              overflowY: "auto",    // ✅ 스크롤 처리
+              resize: "none",
               boxSizing: "border-box",
               outline: "none",
             }}

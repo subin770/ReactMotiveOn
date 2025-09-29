@@ -49,30 +49,29 @@ export default function WorkDetailEdit() {
   };
 
   const handleSave = async () => {
-  try {
-    const payload = {
-      wcode,
-      wtitle: formData.wtitle,
-      wcontent: formData.content,
-      wend: formData.deadline,
-      wstate: formData.status,
-      assignees: formData.assignees.map((a) => a.value), // 담당자 eno 배열
-    };
+    try {
+      const payload = {
+        wcode,
+        wtitle: formData.wtitle,
+        wcontent: formData.content,
+        wend: formData.deadline,
+        wstate: formData.status,
+        assignees: formData.assignees.map((a) => a.value), // 담당자 eno 배열
+      };
 
-    const res = await modifyWork(payload);
+      const res = await modifyWork(payload);
 
-    if (res.data.message === "success" || res.data === "SUCCESS") {
-      alert("업무가 수정되었습니다.");
-      // 👉 수정 후 요청한 업무 목록 페이지로 이동
-      navigate("/work/reqlist", { replace: true });
-    } else {
-      alert("수정 실패");
+      if (res.data.message === "success" || res.data === "SUCCESS") {
+        alert("업무가 수정되었습니다.");
+        navigate("/work/reqlist", { replace: true });
+      } else {
+        alert("수정 실패");
+      }
+    } catch (err) {
+      console.error("업무 수정 실패:", err);
+      alert("서버 오류로 수정에 실패했습니다.");
     }
-  } catch (err) {
-    console.error("업무 수정 실패:", err);
-    alert("서버 오류로 수정에 실패했습니다.");
-  }
-};
+  };
 
   return (
     <div
@@ -80,9 +79,10 @@ export default function WorkDetailEdit() {
         maxWidth: "390px",
         margin: "0 auto",
         fontFamily: "Arial, sans-serif",
-        height: "788px",
+        height: "100vh",        // ✅ 전체 높이
         display: "flex",
         flexDirection: "column",
+        overflow: "hidden",     // ✅ 외부 스크롤 막기
         boxSizing: "border-box",
       }}
     >
@@ -94,13 +94,28 @@ export default function WorkDetailEdit() {
       </div>
 
       {/* 내용 영역 */}
-      <div style={{ flex: 1, overflowY: "auto", padding: "16px", boxSizing: "border-box" }}>
+      <div
+        style={{
+          flex: 1,
+          overflowY: "auto",       // ✅ 본문만 스크롤
+          padding: "16px",
+          paddingBottom: "80px",   // ✅ 버튼 안 가리게 여유
+          boxSizing: "border-box",
+        }}
+      >
         <InputField label="제목" value={formData.wtitle} onChange={handleChange("wtitle")} />
         <InputField label="요청자" value={formData.requester} readOnly />
 
         {/* 담당자 선택 */}
         <div style={{ marginBottom: "16px" }}>
-          <label style={{ fontSize: "14px", fontWeight: "bold", marginBottom: "6px", color: "#333" }}>
+          <label
+            style={{
+              fontSize: "14px",
+              fontWeight: "bold",
+              marginBottom: "6px",
+              color: "#333",
+            }}
+          >
             담당자
           </label>
           <input
@@ -121,17 +136,31 @@ export default function WorkDetailEdit() {
           />
         </div>
 
-        <InputField label="기한" type="date" value={formData.deadline} onChange={handleChange("deadline")} />
+        <InputField
+          label="기한"
+          type="date"
+          value={formData.deadline}
+          onChange={handleChange("deadline")}
+        />
 
         {/* 상태 */}
         <div style={{ display: "flex", alignItems: "center", marginBottom: "12px" }}>
-          <div style={{ width: "40px", fontSize: "14px", fontWeight: "bold", color: "#333" }}>상태</div>
+          <div style={{ width: "40px", fontSize: "14px", fontWeight: "bold", color: "#333" }}>
+            상태
+          </div>
           <StatusBadge label={formData.status} />
         </div>
 
         {/* 내용 */}
-        <div style={{ display: "flex", flexDirection: "column", flex: 1, minHeight: "325px" }}>
-          <label style={{ fontSize: "14px", fontWeight: "bold", marginBottom: "6px", color: "#333" }}>
+        <div style={{ display: "flex", flexDirection: "column" }}>
+          <label
+            style={{
+              fontSize: "14px",
+              fontWeight: "bold",
+              marginBottom: "6px",
+              color: "#333",
+            }}
+          >
             내용
           </label>
           <textarea
@@ -140,6 +169,9 @@ export default function WorkDetailEdit() {
             style={{
               flex: 1,
               width: "100%",
+              minHeight: "200px",   // ✅ 일정 크기 확보
+              maxHeight: "300px",   // ✅ 너무 커지지 않게
+              overflowY: "auto",    // ✅ 내부 스크롤
               resize: "none",
               padding: "10px 12px",
               borderRadius: "6px",
@@ -157,19 +189,19 @@ export default function WorkDetailEdit() {
       {/* 하단 버튼 */}
       <div
         style={{
-         position: "fixed",   // 📌 항상 하단 고정
-      bottom: 0,
-      left: 0,
-      width: "100%",
-      maxWidth: "390px",   // 모바일 화면 크기 맞춤
-      margin: "0 auto",
-      background: "#fff",
-      borderTop: "1px solid #ddd",
-      padding: "12px 16px",
-      display: "flex",
-      gap: "12px",
-      justifyContent: "center",
-      zIndex: 1000,        // 다른 요소보다 위에
+          position: "fixed",   // 📌 항상 하단 고정
+          bottom: 0,
+          left: 0,
+          width: "100%",
+          maxWidth: "390px",
+          margin: "0 auto",
+          background: "#fff",
+          borderTop: "1px solid #ddd",
+          padding: "12px 16px",
+          display: "flex",
+          gap: "12px",
+          justifyContent: "center",
+          zIndex: 1000,
         }}
       >
         <Button label="저장" variant="primary" onClick={handleSave} />

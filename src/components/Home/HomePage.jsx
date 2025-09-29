@@ -285,33 +285,72 @@ const HomePage = () => {
           </div>
 
           {/* 리스트 */}
-          <div style={{ height: "220px", overflowY: "auto", padding: "12px", background: "#f9f9f9", borderBottomLeftRadius: "8px", borderBottomRightRadius: "8px" }}>
-            {apprLoading ? (
-              <div style={{ fontSize: "13px", color: "#777", padding: "6px 2px" }}>불러오는 중…</div>
-            ) : apprItems.length === 0 ? (
-              <div style={{ fontSize: "13px", color: "#777", padding: "6px 2px" }}>문서가 없습니다.</div>
+<div
+  style={{
+    height: "220px",
+    overflowY: "auto",
+    padding: "12px",
+    background: "#f9f9f9",
+    borderBottomLeftRadius: "8px",
+    borderBottomRightRadius: "8px",
+  }}
+>
+  {apprLoading ? (
+    <div style={{ fontSize: "13px", color: "#777", padding: "6px 2px" }}>
+      불러오는 중…
+    </div>
+  ) : apprItems.length === 0 ? (
+    <div style={{ fontSize: "13px", color: "#777", padding: "6px 2px" }}>
+      문서가 없습니다.
+    </div>
+  ) : (
+    apprItems.map((item, idx) => {
+      const id =
+        item?.signNo ?? item?.adno ?? item?.id ?? item?.docNo;
+      const title =
+        item?.title ?? item?.docTitle ?? item?.subject ?? "(제목없음)";
+      const date =
+        item?.createdAt ??
+        item?.regdate ??
+        item?.writeDate ??
+        item?.updatedAt;
+      return (
+        <div
+          key={id ?? `${activeTab}-${idx}`}
+          style={{
+            background: "#fff",
+            borderRadius: "6px",
+            padding: "10px 12px",
+            marginBottom: "10px",
+            boxShadow: "0 1px 3px rgba(0,0,0,0.08)",
+          }}
+        >
+          <div style={{ fontWeight: 500, fontSize: "14px", marginBottom: "4px" }}>
+            {id ? (
+              <Link
+                to={`/approval/detail/${encodeURIComponent(id)}`}
+                state={{ from: "home", tab: activeTab }}
+                style={{
+                  color: "#2c557d",
+                  textDecoration: "none",
+                }}
+              >
+                {title}
+              </Link>
             ) : (
-              apprItems.map((item, idx) => {
-                const id = item?.signNo ?? item?.adno ?? item?.id ?? item?.docNo;
-                const title = item?.title ?? item?.docTitle ?? item?.subject ?? "(제목없음)";
-                const date = item?.createdAt ?? item?.regdate ?? item?.writeDate ?? item?.updatedAt;
-                return (
-                  <li key={id ?? `${activeTab}-${idx}`} style={{ fontSize: "14px", color: "#444", lineHeight: "1.9", listStyleType: "disc", paddingLeft: "15px", margin: "6px 0" }}>
-                    <div style={{ fontWeight: 500 }}>
-                      {id ? (
-                        <Link to={`/approval/detail/${encodeURIComponent(id)}`} state={{ from: "home", tab: activeTab }} style={{ color: "#2c557d", textDecoration: "none" }}>
-                          {title}
-                        </Link>
-                      ) : (
-                        <span>{title}</span>
-                      )}
-                    </div>
-                    <div style={{ fontSize: "12px", color: "#888" }}>{formatDateTime(date)}{item?.writerName ? ` · ${item.writerName}` : ""}</div>
-                  </li>
-                );
-              })
+              <span>{title}</span>
             )}
           </div>
+          <div style={{ fontSize: "12px", color: "#888" }}>
+            {formatDateTime(date)}
+            {item?.writerName ? ` · ${item.writerName}` : ""}
+          </div>
+        </div>
+      );
+    })
+  )}
+</div>
+
 
           {/* 더보기
           <div style={{ display: "flex", justifyContent: "flex-end", padding: "8px 12px" }}>
