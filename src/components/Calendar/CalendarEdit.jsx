@@ -25,26 +25,23 @@ const CalendarEdit = () => {
     const yyyy = d.getFullYear();
     const mm = String(d.getMonth() + 1).padStart(2, "0");
     const dd = String(d.getDate()).padStart(2, "0");
-    return `${yyyy}.${mm}.${dd}`;
+    return `${yyyy}-${mm}-${dd}`;
   };
 
-// 문자열 → HH:mm 변환
-const formatTime = (val) => {
-  if (!val) return "";
-  if (typeof val === "string" && val.includes(" ")) {
-    const [, timePart] = val.split(" "); // "09:30:00"
-    const [hh, mm] = timePart.split(":");
-    return `${hh}:${mm}`; // ✅ "09:30"
-  }
-  const d = new Date(val);
-  if (isNaN(d.getTime())) return "";
-  const hh = String(d.getHours()).padStart(2, "0");
-  const mi = String(d.getMinutes()).padStart(2, "0");
-  return `${hh}:${mi}`;
-};
-
-
-
+  // 문자열 → HH:mm 변환
+  const formatTime = (val) => {
+    if (!val) return "";
+    if (typeof val === "string" && val.includes(" ")) {
+      const [, timePart] = val.split(" "); // "09:30:00"
+      const [hh, mm] = timePart.split(":");
+      return `${hh}:${mm}`; // ✅ "09:30"
+    }
+    const d = new Date(val);
+    if (isNaN(d.getTime())) return "";
+    const hh = String(d.getHours()).padStart(2, "0");
+    const mi = String(d.getMinutes()).padStart(2, "0");
+    return `${hh}:${mi}`;
+  };
 
   // ✅ 초기값 설정
   const [title, setTitle] = useState(event.title || "");
@@ -98,8 +95,8 @@ const formatTime = (val) => {
 
   return (
     <div style={{ height: "100vh", display: "flex", flexDirection: "column" }}>
-      {/* 본문 */}
-      <div style={{ padding: "8.7px", height: "700px", overflowY: "auto" }}>
+      {/* ✅ 본문 (스크롤 영역) */}
+      <div style={{ flex: 1, padding: "12px", overflowY: "auto", paddingBottom: "80px" }}>
         {/* 제목 */}
         <div style={{ display: "flex", alignItems: "center", marginBottom: "13px" }}>
           <label style={{ width: "60px", fontSize: "14px", fontWeight: "bold" }}>
@@ -213,10 +210,22 @@ const formatTime = (val) => {
         </div>
       </div>
 
-      <hr style={{ margin: "9px 0", border: "0.2px solid #eee" }} />
-
-      {/* 취소 / 수정 버튼 */}
-      <div style={{ display: "flex", gap: "8px", padding: "2px 16px 5px" }}>
+      {/* ✅ 하단 버튼 (항상 화면 하단 고정) */}
+      <div
+        style={{
+          position: "fixed",
+          bottom: 0,
+          left: 0,
+          right: 0,
+          padding: "12px 16px",
+          backgroundColor: "#fff",
+          borderTop: "1px solid #eee",
+          display: "flex",
+          gap: "8px",
+          justifyContent: "center",
+          zIndex: 1000,
+        }}
+      >
         <Button label="취소" variant="secondary" onClick={() => navigate(-1)} />
         <Button label="수정" variant="primary" onClick={handleUpdate} />
       </div>
