@@ -68,7 +68,7 @@ export default function WorkRegist() {
     width: "100%",
     display: "flex",
     flexDirection: "column",
-    maxHeight: "100vh",
+    maxHeight: "788px",
     fontFamily: "Noto Sans CJK KR, sans-serif",
     backgroundColor: "#f0f2f5",
   };
@@ -112,7 +112,19 @@ export default function WorkRegist() {
     backgroundColor: "#f5f5f5",
     cursor: "pointer",
   };
-  const buttonContainerStyle = { padding: "8px", backgroundColor: "white" };
+  const buttonContainerStyle = { position: "fixed",   // 📌 항상 하단 고정
+      bottom: 0,
+      left: 0,
+      width: "100%",
+      maxWidth: "390px",   // 모바일 화면 크기 맞춤
+      margin: "0 auto",
+      background: "#fff",
+      borderTop: "1px solid #ddd",
+      padding: "12px 16px",
+      display: "flex",
+      gap: "12px",
+      justifyContent: "center",
+      zIndex: 1000,      };   // 다른 요소보다 위에
 
   return (
     <div style={pageWrapperStyle}>

@@ -157,10 +157,19 @@ export default function WorkDetailEdit() {
       {/* 하단 버튼 */}
       <div
         style={{
-          padding: "12px 16px",
-          borderTop: "1px solid #ddd",
-          display: "flex",
-          gap: "12px",
+         position: "fixed",   // 📌 항상 하단 고정
+      bottom: 0,
+      left: 0,
+      width: "100%",
+      maxWidth: "390px",   // 모바일 화면 크기 맞춤
+      margin: "0 auto",
+      background: "#fff",
+      borderTop: "1px solid #ddd",
+      padding: "12px 16px",
+      display: "flex",
+      gap: "12px",
+      justifyContent: "center",
+      zIndex: 1000,        // 다른 요소보다 위에
         }}
       >
         <Button label="저장" variant="primary" onClick={handleSave} />

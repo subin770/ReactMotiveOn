@@ -93,7 +93,7 @@ export default function WorkDetail() {
         flexDirection: "column",
         padding: "16px 16px 0px",
         boxSizing: "border-box",
-      }}
+            }}
     >
       {/* 고정 헤더 */}
       <div style={{ marginBottom: "12px" }}>
@@ -117,7 +117,7 @@ export default function WorkDetail() {
       </div>
 
       {/* 내용 영역 */}
-      <div style={{ flex: 1, overflowY: "auto", paddingBottom: "16px" }}>
+<div style={{ flex: 1, overflowY: "auto", paddingBottom: "70px" }}>
         {[
           { label: "요청자", value: work.requesterName || "미정" },
           { label: "담당자", value: work.managerName || "담당자 없음" },
@@ -220,31 +220,41 @@ export default function WorkDetail() {
         </div>
       </div>
 
-      {/* 버튼 영역 */}
-      {from === "reqlist" && work.wstatus === "WAIT" && (
-        <div
-          style={{
-            borderTop: "1px solid #ddd",
-            paddingTop: "12px",
-            display: "flex",
-            gap: "12px",
-            marginBottom: "16px",
-          }}
-        >
-          <Button
-            label="수정"
-            variant="primary"
-            onClick={() =>
-              navigate(`/work/detailedit/${wcode}`, { state: { work } })
-            }
-          />
-          <Button
-            label="삭제"
-            variant="danger"
-            onClick={() => setDeleteOpen(true)}
-          />
-        </div>
-      )}
+    {/* 버튼 영역 */}
+{from === "reqlist" && work.wstatus === "WAIT" && (
+  <div
+    style={{
+      position: "fixed",   // 📌 항상 하단 고정
+      bottom: 0,
+      left: 0,
+      width: "100%",
+      maxWidth: "390px",   // 모바일 화면 크기 맞춤
+      margin: "0 auto",
+      background: "#fff",
+      borderTop: "1px solid #ddd",
+      padding: "12px 16px",
+      display: "flex",
+      gap: "12px",
+      justifyContent: "center",
+      zIndex: 1000,        // 다른 요소보다 위에
+      
+    }}
+  >
+    <Button
+      label="수정"
+      variant="primary"
+      onClick={() =>
+        navigate(`/work/detailedit/${wcode}`, { state: { work } })
+      }
+    />
+    <Button
+      label="삭제"
+      variant="danger"
+      onClick={() => setDeleteOpen(true)}
+    />
+  </div>
+)}
+
 
       {/* 삭제 확인 모달 */}
       {deleteOpen && (

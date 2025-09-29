@@ -55,13 +55,12 @@ const CalendarRegist = () => {
     try {
       const res = await registCalendar(newEvent);
       if (res.status === 200 && res.data === "success") {
-        // 성공 시 토스트 띄우기
         setToastMessage("일정이 저장되었습니다.");
         setToastType("success");
 
         setTimeout(() => {
           navigate("/calendarPage");
-        }, 2000); // 토스트가 사라지고 이동
+        }, 2000);
       } else {
         setToastMessage("저장 실패");
         setToastType("error");
@@ -75,8 +74,8 @@ const CalendarRegist = () => {
 
   return (
     <div style={{ height: "100vh", display: "flex", flexDirection: "column" }}>
-      {/* 본문 */}
-      <div style={{ padding: "8.7px", height: "700px", overflowY: "auto" }}>
+      {/* ✅ 본문 (스크롤 가능) */}
+      <div style={{ flex: 1, padding: "12px", overflowY: "auto", paddingBottom: "70px" }}>
         {/* 제목 */}
         <div style={{ display: "flex", flexDirection: "column", marginBottom: "13px" }}>
           <div style={{ display: "flex", alignItems: "center" }}>
@@ -252,7 +251,7 @@ const CalendarRegist = () => {
               placeholder="내용을 입력하세요."
               style={{
                 flex: 1,
-                height: "459px",
+                height: "377px",
                 padding: "10px",
                 borderRadius: "6px",
                 border: "1px solid #ccc",
@@ -270,10 +269,19 @@ const CalendarRegist = () => {
         </div>
       </div>
 
-      <hr style={{ margin: "9px 0", border: "0.2px solid #eee" }} />
-
-      {/* 저장 버튼 */}
-      <div style={{ padding: "2px 16px 5px" }}>
+      {/* ✅ 하단 버튼 (항상 화면 하단에 고정) */}
+      <div
+        style={{
+          position: "fixed",
+          bottom: 0,
+          left: 0,
+          right: 0,
+          padding: "12px 16px",
+          backgroundColor: "#fff",
+          borderTop: "1px solid #eee",
+          zIndex: 1000,
+        }}
+      >
         <Button label="저장" variant="primary" onClick={handleSave} />
       </div>
 
