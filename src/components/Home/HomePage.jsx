@@ -244,14 +244,14 @@ const HomePage = () => {
       </section>
 
       {/* 업무 */}
-      <section style={{ padding: "16px", background: "#fff", marginBottom: "8px" }}>
+      <section style={{ height:"250px", padding: "16px", background: "#fff", marginBottom: "8px" }}>
         <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "12px", fontWeight: "bold", color: "#344055", padding: "0 8px" }}>
-          <span>업무</span>
+          <span>금주 마감 업무</span>
           <Link to="/work" style={{ fontSize: "12px", color: "#bbb" }}>바로가기</Link>
         </div>
 
         {/* 금주 마감 업무 */}
-        <Section title="금주 마감 업무" showMore onMoreClick={() => navigate("/work/myworklist")}>
+        <Section showMore onMoreClick={() => navigate("/work/myworklist")}>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "12px" }}>
             {myWorkStats.map((s, i) => <StatusCard key={i} {...s} />)}
           </div>
@@ -338,14 +338,7 @@ const Section = ({ title, children, showMore, fullHeight, onMoreClick }) => (
     height: fullHeight ? "300px" : "auto",
     backgroundColor: "#f5f5f5",
   }}>
-    <div style={{ display: "flex", justifyContent: "space-between", fontWeight: "bold", marginBottom: "12px" }}>
-      <span>{title}</span>
-      {showMore && (
-        <span style={{ color: "#777", fontSize: "12px", cursor: "pointer" }} onClick={onMoreClick}>
-          더보기
-        </span>
-      )}
-    </div>
+   
     {children}
   </div>
 );
