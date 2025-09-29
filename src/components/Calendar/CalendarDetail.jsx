@@ -1,7 +1,7 @@
 // src/components/calendar/CalendarDetail.jsx
 import React from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import CalendarDetailModal from "../common/CalendarDetailModal"; // ✅ 새 이름으로 변경
+import CalendarDetailModal from "../common/CalendarDetailModal";
 
 const CalendarDetail = () => {
   const navigate = useNavigate();
@@ -36,7 +36,7 @@ const CalendarDetail = () => {
   // };
 
 
-  // ✅ 시간 포맷 (밀리초 → YYYY.MM.DD HH:mm)
+  //  시간 포맷 (밀리초 → YYYY.MM.DD HH:mm)
 const formatDateTime = (val) => {
   console.log("formatDateTime");s
   if (!val) return "";

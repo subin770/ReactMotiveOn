@@ -17,7 +17,7 @@ const CalendarEventList = ({ events, selectedDate }) => {
     return `${day}일 (${weekday})`;
   };
 
-  // ✅ 시간 포맷 (YYYY.MM.DD HH:mm)
+  // 시간 포맷 (YYYY.MM.DD HH:mm)
   const formatDateTime = (val) => {
     if (!val) return "";
 
@@ -210,7 +210,7 @@ const CalendarEventList = ({ events, selectedDate }) => {
               state: {
                 event: {
                   ...selectedEvent,
-                  // ✅ 수정폼에서 불러올 수 있게 매핑
+                  // 수정폼에서 불러올 수 있게 매핑
                   sdate: selectedEvent.start,
                   edate: selectedEvent.end,
                 },

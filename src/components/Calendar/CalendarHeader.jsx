@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
-import interactionPlugin from "@fullcalendar/interaction"; // ✅ 날짜/이벤트 클릭 추가
+import interactionPlugin from "@fullcalendar/interaction"; // 날짜/이벤트 클릭 추가
 import { getCalendarList } from "../motiveOn/api";
 
 class CalendarPage extends Component {
@@ -12,7 +12,7 @@ class CalendarPage extends Component {
 
   touchStartX = 0;
 
-  // ✅ 일정 불러오기 함수 분리
+  // 일정 불러오기 함수 분리
   fetchCalendarList = async () => {
     try {
       const res = await getCalendarList(); // api.js에서 로그인 사용자 eno 자동 추출
@@ -186,7 +186,7 @@ componentWillUnmount() {
         <div style={{ flex: 2, minHeight: 0 }}>
           <FullCalendar
             ref={(el) => (this.calendarRef = el)}
-            plugins={[dayGridPlugin, interactionPlugin]} // ✅ 클릭 가능
+            plugins={[dayGridPlugin, interactionPlugin]} 
             initialView="dayGridMonth"
             locale="ko"
             headerToolbar={{

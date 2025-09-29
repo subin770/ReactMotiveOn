@@ -2,18 +2,17 @@
 import React, { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import Button from "../common/Button";
-import DatePicker from "../common/DatePicker"; // ✅ 공통 DatePicker import
-import { modifyCalendar } from "../motiveOn/api"; // ✅ 일정 수정 API
-import Toast from "../common/Toast"; // ✅ 공통 Toast import
+import DatePicker from "../common/DatePicker"; 
+import { modifyCalendar } from "../motiveOn/api"; 
+import Toast from "../common/Toast"; 
 
 const CalendarEdit = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // ✅ 기존 일정 데이터
+
   const event = location.state?.event || {};
 
-  // ✅ 문자열/숫자 모두 안전하게 Date/시간 문자열 변환
   const formatDate = (val) => {
     if (!val) return "";
     if (typeof val === "string" && val.includes(" ")) {
@@ -43,7 +42,7 @@ const CalendarEdit = () => {
     return `${hh}:${mi}`;
   };
 
-  // ✅ 초기값 설정
+
   const [title, setTitle] = useState(event.title || "");
   const [startDate, setStartDate] = useState(formatDate(event.sdate));
   const [startTime, setStartTime] = useState(formatTime(event.sdate));
@@ -52,11 +51,10 @@ const CalendarEdit = () => {
   const [category, setCategory] = useState(event.catecode || "");
   const [content, setContent] = useState(event.content || "");
 
-  // ✅ Toast 상태
   const [toastMessage, setToastMessage] = useState("");
   const [toastType, setToastType] = useState("success");
 
-  // ✅ 수정 저장
+
   const handleUpdate = async () => {
     if (!title) {
       setToastMessage("제목을 입력하세요.");
@@ -65,7 +63,7 @@ const CalendarEdit = () => {
     }
 
     const updatedEvent = {
-      ccode: event.ccode, // 일정 PK
+      ccode: event.ccode, 
       title,
       start: startDate && startTime ? `${startDate} ${startTime}:00` : null,
       end: endDate && endTime ? `${endDate} ${endTime}:00` : null,
@@ -81,7 +79,7 @@ const CalendarEdit = () => {
       if (res.status === 200 && res.data === "success") {
         setToastMessage("일정이 수정되었습니다.");
         setToastType("success");
-        setTimeout(() => navigate("/calendarPage"), 1500); // 1.5초 뒤 메인 이동
+        setTimeout(() => navigate("/calendarPage"), 1500); 
       } else {
         setToastMessage("수정 실패");
         setToastType("error");
@@ -95,7 +93,7 @@ const CalendarEdit = () => {
 
   return (
     <div style={{ height: "100vh", display: "flex", flexDirection: "column" }}>
-      {/* ✅ 본문 (스크롤 영역) */}
+      {/* 본문 (스크롤 영역) */}
       <div style={{ flex: 1, padding: "12px", overflowY: "auto", paddingBottom: "80px" }}>
         {/* 제목 */}
         <div style={{ display: "flex", alignItems: "center", marginBottom: "13px" }}>
@@ -210,7 +208,7 @@ const CalendarEdit = () => {
         </div>
       </div>
 
-      {/* ✅ 하단 버튼 (항상 화면 하단 고정) */}
+      {/*  하단 버튼 (항상 화면 하단 고정) */}
       <div
         style={{
           position: "fixed",

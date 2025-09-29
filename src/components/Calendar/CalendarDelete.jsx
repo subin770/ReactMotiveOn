@@ -213,7 +213,7 @@ const CalendarDetail = ({ event, onClose }) => {
         </div>
       )}
 
-      {/* ✅ Toast */}
+      {/* Toast */}
       {toastMessage && (
         <Toast
           message={toastMessage}

@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Button from "../common/Button";
-import Toast from "../common/Toast";   // ✅ 공통 토스트 컴포넌트
-import { registCalendar } from "../motiveOn/api";  // ✅ API 모듈 import
+import Toast from "../common/Toast";   
+import { registCalendar } from "../motiveOn/api";  
 
 const CalendarRegist = () => {
   const navigate = useNavigate();
@@ -74,7 +74,7 @@ const CalendarRegist = () => {
 
   return (
     <div style={{ height: "100vh", display: "flex", flexDirection: "column" }}>
-      {/* ✅ 본문 (스크롤 가능) */}
+      {/* 본문 (스크롤 가능) */}
       <div style={{ flex: 1, padding: "12px", overflowY: "auto", paddingBottom: "70px" }}>
         {/* 제목 */}
         <div style={{ display: "flex", flexDirection: "column", marginBottom: "13px" }}>
@@ -269,7 +269,7 @@ const CalendarRegist = () => {
         </div>
       </div>
 
-      {/* ✅ 하단 버튼 (항상 화면 하단에 고정) */}
+      {/* 하단 버튼 (항상 화면 하단에 고정) */}
       <div
         style={{
           position: "fixed",
@@ -285,7 +285,7 @@ const CalendarRegist = () => {
         <Button label="저장" variant="primary" onClick={handleSave} />
       </div>
 
-      {/* ✅ 토스트 */}
+      {/* 토스트 */}
       {toastMessage && (
         <Toast
           message={toastMessage}

@@ -16,7 +16,7 @@ const CalendarWrapper = () => {
     return `${year}.${month}.${day}`;
   };
 
-  // ✅ 공통 fetch 함수
+  // 공통 fetch 함수
   const fetchEvents = async () => {
     try {
       const res = await getCalendarList();
@@ -46,7 +46,7 @@ const CalendarWrapper = () => {
     // 최초 로드
     fetchEvents();
 
-    // ✅ 삭제 후 refresh 이벤트 받을 수 있도록 listener 추가
+    // 삭제 후 refresh 이벤트 받을 수 있도록 listener 추가
     const refreshHandler = () => fetchEvents();
     window.addEventListener("calendar:refresh", refreshHandler);
 
