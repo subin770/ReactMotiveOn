@@ -69,7 +69,7 @@ export default function WorkDetail() {
       const res = await deleteWork(wcode);
 
       if (res.status === 200 && res.data.message === "success") {
-        alert("업무가 삭제되었습니다.");
+        //alert("업무가 삭제되었습니다.");
         navigate("/work/reqlist", { replace: true });
       } else {
         alert("삭제 실패");

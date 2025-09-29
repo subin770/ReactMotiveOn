@@ -6,7 +6,8 @@ import DatePicker from "../common/DatePicker";
 import OrgTree from "../common/OrgTree2"; // 조직도
 import { useNavigate, useLocation } from "react-router-dom";
 import { registWork } from "../motiveOn/api";
-import { useUserStore } from "../../store/userStore";   
+import { useUserStore } from "../../store/userStore"; 
+import Toast from "../common/Toast";  
 
 export default function WorkRegist() {
   const navigate = useNavigate();
@@ -16,11 +17,14 @@ export default function WorkRegist() {
 
   const [showOrgTree, setShowOrgTree] = useState(false);
   const [title, setTitle] = useState("");
-  const [startDate, setStartDate] = useState("");
+  const [startDate, setStartDate] = useState(new Date()); // ✅ 오늘 날짜 기본값
   const [endDate, setEndDate] = useState("");
   const [content, setContent] = useState("");
   const [assignees, setAssignees] = useState([]);
   const orgTreeRef = useRef(null); // ref 추가
+
+  const [toastMessage, setToastMessage] = useState("");
+  const [toastType, setToastType] = useState("success");
 
   // ✅ 저장 버튼
   const handleSave = () => {
@@ -52,9 +56,11 @@ export default function WorkRegist() {
       },
       ownerEnos
     )
-      .then(() => {
-        alert("업무등록이 완료 되었습니다.");
-        navigate("/work/reqlist"); // 요청한 업무 리스트로 이동
+     .then(() => {
+        // ✅ 성공 토스트 표시 후 이동
+        setToastType("success");
+        setToastMessage("업무가 등록되었습니다.");
+        setTimeout(() => navigate("/work/reqlist"), 1200);
       })
       .catch((err) => {
         console.error(err);
@@ -290,6 +296,15 @@ export default function WorkRegist() {
             />
           </div>
         </div>
+      )}
+{/* ✅ 토스트 */}
+      {toastMessage && (
+        <Toast
+          message={toastMessage}
+          type={toastType}
+          duration={1200}
+          onClose={() => setToastMessage("")}
+        />
       )}
     </div>
   );

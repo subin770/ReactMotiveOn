@@ -6,6 +6,7 @@ import Button from "../common/Button";
 import InputField from "../common/InputField";
 import OrgTree from "../common/OrgTree2"; // 👈 조직도 불러오기
 import { modifyWork } from "../motiveOn/api";
+import Toast from "../common/Toast";
 
 export default function WorkDetailEdit() {
   const location = useLocation();
@@ -25,6 +26,10 @@ export default function WorkDetailEdit() {
 
   const [showOrgTree, setShowOrgTree] = useState(false);
   const orgTreeRef = useRef(null);
+
+
+  const [toastMessage, setToastMessage] = useState("");
+  const [toastType, setToastType] = useState("success");
 
   // 초기값 세팅
   useEffect(() => {
@@ -61,9 +66,11 @@ export default function WorkDetailEdit() {
 
       const res = await modifyWork(payload);
 
-      if (res.data.message === "success" || res.data === "SUCCESS") {
-        alert("업무가 수정되었습니다.");
-        navigate("/work/reqlist", { replace: true });
+       if (res.data.message === "success" || res.data === "SUCCESS") {
+        // ✅ 성공 토스트 표시 후 이동
+        setToastType("success");
+        setToastMessage("업무가 수정되었습니다.");
+        setTimeout(() => navigate("/work/reqlist", { replace: true }), 1200);
       } else {
         alert("수정 실패");
       }
@@ -72,6 +79,7 @@ export default function WorkDetailEdit() {
       alert("서버 오류로 수정에 실패했습니다.");
     }
   };
+
 
   return (
     <div
@@ -248,6 +256,15 @@ export default function WorkDetailEdit() {
             />
           </div>
         </div>
+      )}
+    {/* ✅ 토스트 */}
+      {toastMessage && (
+        <Toast
+          message={toastMessage}
+          type={toastType}
+          duration={1200}
+          onClose={() => setToastMessage("")}
+        />
       )}
     </div>
   );

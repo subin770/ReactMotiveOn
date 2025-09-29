@@ -2,27 +2,38 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { deleteWork } from "../motiveOn/api"; // ✅ 업무 삭제 API import
+import Toast from "../common/Toast";
 
 const WorkDetail = ({ work, onClose }) => {
   const navigate = useNavigate();
   const [deleteOpen, setDeleteOpen] = useState(false);
 
+ const [toastMessage, setToastMessage] = useState("");
+  const [toastType, setToastType] = useState("success");
+
+
   // ✅ 삭제 처리 함수
-  const handleDelete = async () => {
+ const handleDelete = async () => {
     try {
       const res = await deleteWork(work.wcode);
 
-      if (res.status === 200 && (res.data === "success" || res.data.message === "success")) {
-        alert("업무가 삭제되었습니다.");
+      if (
+        res.status === 200 &&
+        (res.data === "success" || res.data.message === "success")
+      ) {
+        setToastType("success");
+        setToastMessage("업무가 삭제되었습니다.");
         setDeleteOpen(false);
         onClose(); // 상세 모달 닫기
-        navigate("/work/reqlist"); // ✅ 삭제 후 요청한업무 목록으로 이동
+        setTimeout(() => navigate("/work/reqlist"), 1200); // ✅ 1.2초 뒤 이동
       } else {
-        alert("삭제 실패");
+        setToastType("error");
+        setToastMessage("삭제 실패");
       }
     } catch (err) {
       console.error("삭제 오류:", err);
-      alert("서버 오류 발생");
+      setToastType("error");
+      setToastMessage("서버 오류 발생");
     }
   };
 
@@ -208,6 +219,16 @@ const WorkDetail = ({ work, onClose }) => {
           </div>
         </div>
       )}
+ {toastMessage && (
+        <Toast
+          message={toastMessage}
+          type={toastType}
+          duration={1200}
+          onClose={() => setToastMessage("")}
+        />
+      )}
+
+
     </>
   );
 };

@@ -60,7 +60,7 @@ const CalendarEventList = ({ events, selectedDate }) => {
     try {
       const res = await deleteCalendar(selectedEvent.ccode);
       if (res.status === 200 && res.data === "success") {
-        alert("삭제되었습니다.");
+        //alert("삭제되었습니다.");
         setDeleteConfirmOpen(false);
         setSelectedEvent(null);
         window.dispatchEvent(new Event("calendar:refresh"));
