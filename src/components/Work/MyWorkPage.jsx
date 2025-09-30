@@ -22,10 +22,19 @@ export default function MyWorkListPage() {
 
   const statusMap = {
     WAIT: "대기",
-    ING: "진행중",
+    ING: "진행",
     DONE: "완료",
     REJECT: "반려",
+COLLAB: "협업",
+DELEGATE: "대리",
   };
+
+  // { label: "대기", count: map.WAIT, color: "#d8f5d0" },
+  //     { label: "진행", count: map.ING , color: "#c5ddf1" },
+  //     { label: "협업요청", count: map.COLLAB, color: "#f3dccb" },
+  //     { label: "대리요청", count: map.DELEGATE, color: "#e2e2e2" },
+  //     { label: "완료", count: map.DONE, color: "#fff9c4" },
+  //     { label: "전체", count: list.length, color: "#ecceef" },
 
   useEffect(() => {
     let startX = 0;

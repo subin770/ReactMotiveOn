@@ -27,9 +27,9 @@ class CalendarPage extends Component {
 
         // catecode 에 따라 색상 매핑
         let color = "#9bc59c";
-        if (event.catecode === "C") color = "#f76258"; // 회사
-        else if (event.catecode === "D") color = "#71b2e7"; // 부서
-        else if (event.catecode === "P") color = "#94c296"; // 개인
+        if (event.catecode === "C") color = "#6cb2db"; // 회사
+        else if (event.catecode === "D") color = "#f3aea2"; // 부서
+        else if (event.catecode === "P") color = "#a6d893"; // 개인
 
         return {
           id: event.ccode,

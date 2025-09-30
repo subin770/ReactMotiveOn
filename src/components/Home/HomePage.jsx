@@ -1,7 +1,6 @@
 // src/components/Home/HomePage.jsx
 import React, { useState, useEffect } from "react";   
 import { Link, useNavigate } from "react-router-dom";
-import StatusCard from "../common/StatusCard";
 import { 
   getCalendarList, 
   getApprovalHome, 
@@ -21,24 +20,6 @@ const HomePage = () => {
   const [myWorkStats, setMyWorkStats] = useState([]);
   const [requestedWorkStats, setRequestedWorkStats] = useState([]);
   const [weeklyDeadline, setWeeklyDeadline] = useState([]);
-
-  // 상태별 카운트 집계
-  const makeStatusCounts = (list) => {
-    const map = { WAIT: 0, PROGRESS: 0, COLLAB: 0, DELEGATE: 0, DONE: 0 };
-    list.forEach(item => {
-      if (map[item.wstatus] !== undefined) {
-        map[item.wstatus]++;
-      }
-    });
-    return [
-      { label: "대기", count: map.WAIT, color: "#d8f5d0" },
-      { label: "진행", count: map.PROGRESS, color: "#c5ddf1" },
-      { label: "협업요청", count: map.COLLAB, color: "#f3dccb" },
-      { label: "대리요청", count: map.DELEGATE, color: "#e2e2e2" },
-      { label: "완료", count: map.DONE, color: "#fff9c4" },
-      { label: "전체", count: list.length, color: "#ecceef" },
-    ];
-  };
 
   // 이번 주 범위 구하기
   const getWeekRange = () => {
@@ -62,6 +43,17 @@ const HomePage = () => {
     return date >= start && date <= end;
   };
 
+  // 날짜 포맷
+  const formatDate = (dateStr) => {
+    if (!dateStr) return "";
+    const d = new Date(dateStr);
+    if (isNaN(d.getTime())) return "";
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, "0");
+    const day = String(d.getDate()).padStart(2, "0");
+    return `${year}.${month}.${day}`;
+  };
+
   /* ================= 전자결재 상태 ================= */
   const [apprLoading, setApprLoading] = useState(false);
   const [apprItems, setApprItems] = useState([]); 
@@ -71,13 +63,13 @@ const HomePage = () => {
 
   // 오늘 날짜 (YYYY.MM.DD)
   const today = new Date();
-  const formatDate = (date) => {
+  const formatDateSimple = (date) => {
     const y = date.getFullYear();
     const m = String(date.getMonth() + 1).padStart(2, "0");
     const d = String(date.getDate()).padStart(2, "0");
     return `${y}.${m}.${d}`;
   };
-  const todayStr = formatDate(today);
+  const todayStr = formatDateSimple(today);
 
   const formatDateTime = (val) => {
     if (!val) return "";
@@ -107,8 +99,8 @@ const HomePage = () => {
       .then((res) => {
         const list = res.data.calendarList || [];
         const events = list.filter((event) => {
-          const sdate = formatDate(new Date(event.sdate));
-          const edate = formatDate(new Date(event.edate));
+          const sdate = formatDateSimple(new Date(event.sdate));
+          const edate = formatDateSimple(new Date(event.edate));
           return todayStr >= sdate && todayStr <= edate;
         });
         setTodayEvents(events);
@@ -180,11 +172,9 @@ const HomePage = () => {
     Promise.all([getMyWorkList(), getRequestedWork()])
       .then(([myRes, reqRes]) => {
         const myList = myRes.data.list || [];
-        const reqList = reqRes.data.list || [];
+        setMyWorkStats(myList);
 
-        setMyWorkStats(makeStatusCounts(myList));
-        setRequestedWorkStats(makeStatusCounts(reqList));
-
+        // 금주 마감 업무만 필터
         const deadlineList = myList.filter(w => isWithinThisWeek(w.wend));
         setWeeklyDeadline(deadlineList);
       })
@@ -199,6 +189,12 @@ const HomePage = () => {
     const key = TAB_TO_KEY(tab);
     if (tab === activeTab) return apprItems.length || apprCounts[key] || 0;
     return apprCounts[key] || 0;
+  };
+
+  const statusMap = {
+    WAIT: "대기",
+    ING: "진행중",
+    DONE: "완료",
   };
 
   /* ================= 렌더 ================= */
@@ -243,20 +239,65 @@ const HomePage = () => {
         </div>
       </section>
 
-      {/* 업무 */}
-      <section style={{ height:"250px", padding: "16px", background: "#fff", marginBottom: "8px" }}>
-        <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "12px", fontWeight: "bold", color: "#344055", padding: "0 8px" }}>
-          <span>금주 마감 업무</span>
-          <Link to="/work" style={{ fontSize: "12px", color: "#bbb" }}>바로가기</Link>
-        </div>
+     {/* 금주 마감 업무 (리스트로 교체됨) */}
+<section style={{ height:"250px", padding: "16px", background: "#fff", marginBottom: "8px" }}>
+  <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "12px", fontWeight: "bold", color: "#344055", padding: "0 8px" }}>
+    <span>금주 마감 업무</span>
+    <Link to="/work" style={{ fontSize: "12px", color: "#bbb" }}>바로가기</Link>
+  </div>
 
-        {/* 금주 마감 업무 */}
-        <Section showMore onMoreClick={() => navigate("/work/myworklist")}>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "12px" }}>
-            {myWorkStats.map((s, i) => <StatusCard key={i} {...s} />)}
+  {/* 리스트 박스 (f9f9f9 적용) */}
+  <div style={{
+    flex: 1,
+    height: "190px",
+    overflowY: "auto",
+    display: "flex",
+    flexDirection: "column",
+    gap: "8px",
+    background: "#f9f9f9",
+    borderRadius: "6px",
+    padding: "12px",
+    WebkitOverflowScrolling: "touch"
+  }}>
+    {weeklyDeadline.length === 0 ? (
+      <p style={{ fontSize: "13px", color: "#888" }}>마감 예정 업무가 없습니다.</p>
+    ) : (
+      weeklyDeadline.map((work, idx) => (
+        <div
+          key={work.wcode || idx}
+          onClick={() => navigate(`/work/detail/${work.wcode}`, { state: { from: "home" } })}
+          style={{
+            background: "#fff",
+            position: "relative",
+            padding: "12px",
+            borderRadius: "8px",
+            boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "flex-start",
+            cursor: "pointer",
+          }}
+        >
+          <div>
+            {/* 상태 배지 */}
+            <div style={{ position: "absolute", top: "12px", right: "12px" }}>
+              <StatusBadge label={statusMap[work.wstatus] || "대기"} />
+            </div>
+
+            <div style={{ fontWeight: "bold", marginBottom: "6px" }}>{work.wtitle}</div>
+            <div style={{ fontSize: "13px", color: "#555" }}>
+              {work.deptName} {work.managerName}
+            </div>
+            <div style={{ fontSize: "12px", color: "#999", marginTop: "4px" }}>
+              {formatDate(work.wdate)} ~ {formatDate(work.wend)}
+            </div>
           </div>
-        </Section>
-      </section>
+        </div>
+      ))
+    )}
+  </div>
+</section>
+
 
       {/* 전자결재 */}
       <section style={{ padding: "16px", background: "#fff", display: "flex", flexDirection: "column", minHeight: "400px" }}>
@@ -285,79 +326,68 @@ const HomePage = () => {
           </div>
 
           {/* 리스트 */}
-<div
-  style={{
-    height: "220px",
-    overflowY: "auto",
-    padding: "12px",
-    background: "#f9f9f9",
-    borderBottomLeftRadius: "8px",
-    borderBottomRightRadius: "8px",
-  }}
->
-  {apprLoading ? (
-    <div style={{ fontSize: "13px", color: "#777", padding: "6px 2px" }}>
-      불러오는 중…
-    </div>
-  ) : apprItems.length === 0 ? (
-    <div style={{ fontSize: "13px", color: "#777", padding: "6px 2px" }}>
-      문서가 없습니다.
-    </div>
-  ) : (
-    apprItems.map((item, idx) => {
-      const id =
-        item?.signNo ?? item?.adno ?? item?.id ?? item?.docNo;
-      const title =
-        item?.title ?? item?.docTitle ?? item?.subject ?? "(제목없음)";
-      const date =
-        item?.createdAt ??
-        item?.regdate ??
-        item?.writeDate ??
-        item?.updatedAt;
-      return (
-        <div
-          key={id ?? `${activeTab}-${idx}`}
-          style={{
-            background: "#fff",
-            borderRadius: "6px",
-            padding: "10px 12px",
-            marginBottom: "10px",
-            boxShadow: "0 1px 3px rgba(0,0,0,0.08)",
-          }}
-        >
-          <div style={{ fontWeight: 500, fontSize: "14px", marginBottom: "4px" }}>
-            {id ? (
-              <Link
-                to={`/approval/detail/${encodeURIComponent(id)}`}
-                state={{ from: "home", tab: activeTab }}
-                style={{
-                  color: "#2c557d",
-                  textDecoration: "none",
-                }}
-              >
-                {title}
-              </Link>
+          <div
+            style={{
+              height: "220px",
+              overflowY: "auto",
+              padding: "12px",
+              background: "#f9f9f9",
+              borderBottomLeftRadius: "8px",
+              borderBottomRightRadius: "8px",
+            }}
+          >
+            {apprLoading ? (
+              <div style={{ fontSize: "13px", color: "#777", padding: "6px 2px" }}>
+                불러오는 중…
+              </div>
+            ) : apprItems.length === 0 ? (
+              <div style={{ fontSize: "13px", color: "#777", padding: "6px 2px" }}>
+                문서가 없습니다.
+              </div>
             ) : (
-              <span>{title}</span>
+              apprItems.map((item, idx) => {
+                const id =
+                  item?.signNo ?? item?.adno ?? item?.id ?? item?.docNo;
+                const title =
+                  item?.title ?? item?.docTitle ?? item?.subject ?? "(제목없음)";
+                const date =
+                  item?.createdAt ?? item?.regdate ?? item?.writeDate ?? item?.updatedAt;
+                return (
+                  <div
+                    key={id ?? `${activeTab}-${idx}`}
+                    style={{
+                      background: "#fff",
+                      borderRadius: "6px",
+                      padding: "10px 12px",
+                      marginBottom: "10px",
+                      boxShadow: "0 1px 3px rgba(0,0,0,0.08)",
+                    }}
+                  >
+                    <div style={{ fontWeight: 500, fontSize: "14px", marginBottom: "4px" }}>
+                      {id ? (
+                        <Link
+                          to={`/approval/detail/${encodeURIComponent(id)}`}
+                          state={{ from: "home", tab: activeTab }}
+                          style={{
+                            color: "#2c557d",
+                            textDecoration: "none",
+                          }}
+                        >
+                          {title}
+                        </Link>
+                      ) : (
+                        <span>{title}</span>
+                      )}
+                    </div>
+                    <div style={{ fontSize: "12px", color: "#888" }}>
+                      {formatDateTime(date)}
+                      {item?.writerName ? ` · ${item.writerName}` : ""}
+                    </div>
+                  </div>
+                );
+              })
             )}
           </div>
-          <div style={{ fontSize: "12px", color: "#888" }}>
-            {formatDateTime(date)}
-            {item?.writerName ? ` · ${item.writerName}` : ""}
-          </div>
-        </div>
-      );
-    })
-  )}
-</div>
-
-
-          {/* 더보기
-          <div style={{ display: "flex", justifyContent: "flex-end", padding: "8px 12px" }}>
-            <Link to="/Approval" state={{ tab: activeTab, tabKey: TAB_TO_PARAMS(activeTab).tab }} style={{ fontSize: "12px", color: "#2c557d", textDecoration: "none" }}>
-              더보기
-            </Link>
-          </div> */}
         </div>
       </section>
     </div>
@@ -365,19 +395,3 @@ const HomePage = () => {
 };
 
 export default HomePage;
-
-/* ================= Section 공통 컴포넌트 ================= */
-const Section = ({ title, children, showMore, fullHeight, onMoreClick }) => (
-  <div style={{
-    background: "#fff",
-    borderRadius: "7px",
-    padding: "16px",
-    display: "flex",
-    flexDirection: "column",
-    height: fullHeight ? "300px" : "auto",
-    backgroundColor: "#f5f5f5",
-  }}>
-   
-    {children}
-  </div>
-);

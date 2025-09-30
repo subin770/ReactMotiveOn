@@ -24,8 +24,8 @@ const CalendarWrapper = () => {
 
       const mappedEvents = rawEvents.map((event) => {
         let color = "#9bc59c";
-        if (event.catecode === "C") color = "#f76258"; // 회사
-        else if (event.catecode === "D") color = "#71b2e7"; // 부서
+        if (event.catecode === "C") color = "#379cd6"; // 회사
+        else if (event.catecode === "D") color = "#c58a88"; // 부서
         else if (event.catecode === "P") color = "#94c296"; // 개인
 
         return {

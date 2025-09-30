@@ -173,7 +173,7 @@ const Sidebar = ({ isOpen, onClose, user, onNavigate, onLogout }) => {
           onClick={onLogout}
           style={{
             position: "absolute",
-            bottom: "20px",
+            bottom: "60px",
             right: "20px",
             display: "flex",
             alignItems: "center",

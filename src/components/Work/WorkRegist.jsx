@@ -15,9 +15,13 @@ export default function WorkRegist() {
 
   const { user, isLoggedIn } = useUserStore(); 
 
+  // ✅ 오늘 날짜 YYYY-MM-DD
+  const today = new Date();
+  const formattedToday = today.toISOString().slice(0, 10);
+
   const [showOrgTree, setShowOrgTree] = useState(false);
   const [title, setTitle] = useState("");
-  const [startDate, setStartDate] = useState(new Date()); // ✅ 오늘 날짜 기본값
+  const [startDate, setStartDate] = useState(formattedToday); // ✅ 오늘 날짜 기본값
   const [endDate, setEndDate] = useState("");
   const [content, setContent] = useState("");
   const [assignees, setAssignees] = useState([]);
@@ -50,7 +54,7 @@ export default function WorkRegist() {
       {
         wtitle: title,
         wcontent: content,
-        wdate: startDate || null,
+        wdate: startDate || null, // ✅ "2025-09-29"
         wend: endDate || null,
         wstatus: "WAIT",
       },
@@ -71,12 +75,12 @@ export default function WorkRegist() {
   // === 스타일 ===
   const pageWrapperStyle = {
     width: "100%",
-    height: "100vh",           // ✅ 전체 화면
+    height: "100vh",
     display: "flex",
     flexDirection: "column",
     fontFamily: "Noto Sans CJK KR, sans-serif",
     backgroundColor: "#f0f2f5",
-    overflow: "hidden",        // ✅ body 스크롤 막고 내부 스크롤만
+    overflow: "hidden",
   };
   const contentContainerStyle = {
     flex: 1,
@@ -85,8 +89,8 @@ export default function WorkRegist() {
     backgroundColor: "white",
     boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
     boxSizing: "border-box",
-    overflowY: "auto",         // ✅ 본문 스크롤
-    paddingBottom: "80px",     // ✅ 버튼 영역 확보
+    overflowY: "auto",
+    paddingBottom: "80px",
     margin: "0 auto",
     width: "100%",
   };
@@ -122,11 +126,11 @@ export default function WorkRegist() {
     cursor: "pointer",
   };
   const buttonContainerStyle = { 
-    position: "fixed",   // 📌 항상 하단 고정
+    position: "fixed",
     bottom: 0,
     left: 0,
     width: "100%",
-    maxWidth: "390px",   // 모바일 화면 크기 맞춤
+    maxWidth: "390px",
     margin: "0 auto",
     background: "#fff",
     borderTop: "1px solid #ddd",
@@ -184,15 +188,22 @@ export default function WorkRegist() {
         {/* 시작일 */}
         <div style={fieldRowStyle}>
           <div style={labelStyle}>시작일</div>
-          <div style={{
-            ...inputWrapperStyle,
-            marginTop: "-2px",
-            marginBottom: "-16px",
-          }}>
-            <DatePicker
-              dateValue={startDate}
-              onDateChange={setStartDate}
-              style={commonInputStyle}
+          <div
+            style={{
+              ...inputWrapperStyle,
+              marginTop: "-2px",
+            }}
+          >
+            <input
+              type="text"
+              value={startDate}   // ✅ 자동으로 오늘 날짜 표시됨
+              readOnly
+              style={{
+                ...commonInputStyle,
+                backgroundColor: "#f5f5f5",
+                cursor: "not-allowed",
+                padding: "10px",
+              }}
             />
           </div>
         </div>
@@ -237,9 +248,9 @@ export default function WorkRegist() {
               border: "1px solid #ccc",
               backgroundColor: "#f9f9f9",
               fontSize: "14px",
-              minHeight: "180px",   // ✅ 일정 크기 확보
-              maxHeight: "300px",   // ✅ 너무 커지지 않도록 제한
-              overflowY: "auto",    // ✅ 스크롤 처리
+              minHeight: "180px",
+              maxHeight: "300px",
+              overflowY: "auto",
               resize: "none",
               boxSizing: "border-box",
               outline: "none",
